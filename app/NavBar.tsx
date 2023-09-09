@@ -35,15 +35,10 @@ export default function NavBar() {
 
     return (
         <>
-            <header className="bg-white py-1">
+            <header className="fixed top-0 z-50 w-full bg-white bg-opacity-70 py-1 shadow-md">
                 <nav className="mx-auto flex w-11/12 items-center">
-                    <Image
-                        src="/wedding-couple.png"
-                        alt="logo"
-                        width={60}
-                        height={60}
-                    />
-                    <div className="mx-12 flex-grow whitespace-nowrap text-center font-serif text-2xl font-extrabold xl:text-left">
+                    <Image src="/logo.png" alt="logo" width={60} height={60} />
+                    <div className="mx-12 flex-grow whitespace-nowrap text-center font-serif text-2xl xl:text-left">
                         {WEBSITE_TITLE}
                     </div>
                     <DesktopMenu />
@@ -111,7 +106,7 @@ const MenuLinks = (props: IMenuLinks) => {
             onClick={onClick}
             href={link.href}
             className={`block px-4 py-2 text-lg font-medium transition-colors duration-200 
-            hover:bg-gray-200 active:bg-gray-300 ${linkStyle}`}
+            hover:bg-slate-300 active:bg-slate-500 ${linkStyle} rounded-full`}
         >
             {link.text}
         </Link>
@@ -131,7 +126,7 @@ const MobileMenu = (props: IMobileMenuProps) => {
 
     const menuContainerClasses = () => {
         let baseClasses =
-            "absolute top-16 w-full overflow-hidden rounded-b-lg bg-white transition-all ease-in-out";
+            "absolute top-[68px] w-full overflow-hidden rounded-b-lg bg-white bg-opacity-70 transition-all ease-in-out z-10";
         let stateClasses = isMenuOpen
             ? "max-h-[500px] opacity-100 transition-opacity duration-300 px-2 py-4"
             : "max-h-0 opacity-0 transition-opacity duration-700";

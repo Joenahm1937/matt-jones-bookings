@@ -18,7 +18,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${poppins.className} flex h-screen flex-col bg-gradient-to-t from-[#dad3d8] to-[#18366a]`}
+                className={`${poppins.className} flex h-screen flex-col overflow-y-scroll`}
             >
                 <NavBar />
                 {children}
