@@ -1,29 +1,43 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-
-const NUM_IMAGES = 5;
+import { NUM_CAROUSEL_IMAGES, CAROUSEL_INTERVAL_SECONDS } from "./constants";
 
 export default function Carousel() {
     const [activeSlide, setActiveSlide] = useState(1);
+    let interval = useRef<NodeJS.Timeout | null>(null);
+
+    const resetInterval = () => {
+        if (interval.current) clearInterval(interval.current);
+        interval.current = setInterval(
+            handleNextClick,
+            CAROUSEL_INTERVAL_SECONDS * 1000,
+        );
+    };
 
     const handlePrevClick = () => {
-        setActiveSlide((prev) => (prev > 0 ? prev - 1 : NUM_IMAGES - 1));
+        setActiveSlide((prev) =>
+            prev > 0 ? prev - 1 : NUM_CAROUSEL_IMAGES - 1,
+        );
+        resetInterval();
     };
 
     const handleNextClick = () => {
-        setActiveSlide((prev) => (prev < NUM_IMAGES - 1 ? prev + 1 : 0));
+        setActiveSlide((prev) =>
+            prev < NUM_CAROUSEL_IMAGES - 1 ? prev + 1 : 0,
+        );
+        resetInterval();
     };
 
-    const left = activeSlide === 0 ? NUM_IMAGES - 1 : activeSlide - 1;
-    const right = activeSlide === NUM_IMAGES - 1 ? 0 : activeSlide + 1;
+    const left = activeSlide === 0 ? NUM_CAROUSEL_IMAGES - 1 : activeSlide - 1;
+    const right = activeSlide === NUM_CAROUSEL_IMAGES - 1 ? 0 : activeSlide + 1;
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            handleNextClick();
-        }, 5000);
+        resetInterval();
 
-        return () => clearInterval(interval);
+        return () => {
+            if (interval.current) clearInterval(interval.current);
+        };
     }, []);
 
     return (
@@ -35,7 +49,7 @@ export default function Carousel() {
                 &#8592;
             </button>
 
-            {[...Array(NUM_IMAGES)].map((_, idx) => (
+            {[...Array(NUM_CAROUSEL_IMAGES)].map((_, idx) => (
                 <Card
                     key={idx}
                     src={`/carousel/wedding-photo-${idx}.jpg`}
@@ -43,11 +57,11 @@ export default function Carousel() {
                     isActive={activeSlide === idx}
                     isLeft={
                         activeSlide - 1 === idx ||
-                        (activeSlide === 0 && idx === NUM_IMAGES - 1)
+                        (activeSlide === 0 && idx === NUM_CAROUSEL_IMAGES - 1)
                     }
                     isRight={
                         activeSlide + 1 === idx ||
-                        (activeSlide === NUM_IMAGES - 1 && idx === 0)
+                        (activeSlide === NUM_CAROUSEL_IMAGES - 1 && idx === 0)
                     }
                 />
             ))}
