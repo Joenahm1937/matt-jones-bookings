@@ -1,3 +1,5 @@
+import Carousel from "./Carousel";
+
 export default function Home() {
     return (
         <div>
@@ -11,11 +13,10 @@ export default function Home() {
                     <div className="space-y-10 text-left text-white xl:space-y-44">
                         <div className="space-y-4 xl:space-y-8">
                             <h1 className="p-2 text-5xl font-bold xl:text-6xl">
-                                Welcome to my website
+                                Matt's Booking
                             </h1>
                             <p className="text-xl xl:text-3xl">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. Sed sit amet facilisis enim.
+                                You take care of each other, and I'll take care of the rest
                             </p>
                         </div>
 
@@ -26,7 +27,7 @@ export default function Home() {
                 </div>
             </div>
 
-            <div>Content under background image where we can scroll to</div>
+            <Carousel/>
         </div>
     );
 }

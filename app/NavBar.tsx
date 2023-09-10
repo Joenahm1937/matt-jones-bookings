@@ -1,15 +1,16 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { WEBSITE_TITLE } from "./constants";
 
-interface IMenuLinks {
+interface IMenuLinksProps {
     linkStyle?: string;
     onClick?: () => void;
 }
 
 interface IMobileMenuProps {
+    topValue: string;
     isMenuOpen: boolean;
     hideMobileMenu: () => void;
 }
@@ -20,12 +21,18 @@ interface IHamburgerIconProps {
 }
 
 export default function NavBar() {
+    const headerRef = useRef<HTMLDivElement | null>(null);
     const [isMenuOpen, setMenuOpen] = useState(false);
+    const [headerHeight, setHeaderHeight] = useState("0");
 
     const toggleMobileMenu = () => setMenuOpen((prevState) => !prevState);
     const hideMobileMenu = () => setMenuOpen(false);
 
     useEffect(() => {
+        if (headerRef.current) {
+            setHeaderHeight(`${headerRef.current.offsetHeight}px`);
+        }
+
         const mediaQuery = window.matchMedia("(min-width: 1280px)"); // Tailwind's xl breakpoint
         mediaQuery.addEventListener("change", hideMobileMenu);
         return () => {
@@ -35,7 +42,10 @@ export default function NavBar() {
 
     return (
         <>
-            <header className="fixed top-0 z-50 w-full bg-white bg-opacity-70 py-1 shadow-md">
+            <header
+                ref={headerRef}
+                className="fixed z-50 w-full bg-white bg-opacity-70 py-1 shadow-md"
+            >
                 <nav className="mx-auto flex w-11/12 items-center">
                     <Image src="/logo.png" alt="logo" width={60} height={60} />
                     <div className="mx-12 flex-grow whitespace-nowrap text-center font-serif text-2xl xl:text-left">
@@ -51,6 +61,7 @@ export default function NavBar() {
             <MobileMenu
                 isMenuOpen={isMenuOpen}
                 hideMobileMenu={hideMobileMenu}
+                topValue={headerHeight}
             />
         </>
     );
@@ -92,7 +103,7 @@ const HamburgerIcon = (props: IHamburgerIconProps) => {
     );
 };
 
-const MenuLinks = (props: IMenuLinks) => {
+const MenuLinks = (props: IMenuLinksProps) => {
     const { linkStyle, onClick } = props;
     const links = [
         { href: "/", text: "Home" },
@@ -101,15 +112,17 @@ const MenuLinks = (props: IMenuLinks) => {
         { href: "/Contact", text: "Contact" },
     ];
     return links.map((link) => (
-        <Link
-            key={link.href}
-            onClick={onClick}
-            href={link.href}
-            className={`block px-4 py-2 text-lg font-medium transition-colors duration-200 
-            hover:bg-slate-300 active:bg-slate-500 ${linkStyle} rounded-full`}
-        >
-            {link.text}
-        </Link>
+        <div className="group">
+            <Link
+                key={link.href}
+                onClick={onClick}
+                href={link.href}
+                className={`relative block px-4 py-2 text-lg font-medium transition-colors duration-200 ${linkStyle}`}
+            >
+                {link.text}
+                <span className="absolute bottom-0 left-0 h-0.5 w-0 transform bg-stone-500 transition-all duration-200 group-hover:w-full"></span>
+            </Link>
+        </div>
     ));
 };
 
@@ -122,11 +135,10 @@ const DesktopMenu = () => (
 );
 
 const MobileMenu = (props: IMobileMenuProps) => {
-    const { isMenuOpen, hideMobileMenu } = props;
+    const { topValue, isMenuOpen, hideMobileMenu } = props;
 
     const menuContainerClasses = () => {
-        let baseClasses =
-            "absolute top-[68px] w-full overflow-hidden rounded-b-lg bg-white bg-opacity-70 transition-all ease-in-out z-10";
+        let baseClasses = `absolute w-full overflow-hidden rounded-b-lg bg-white bg-opacity-70 transition-all ease-in-out z-10`;
         let stateClasses = isMenuOpen
             ? "max-h-[500px] opacity-100 transition-opacity duration-300 px-2 py-4"
             : "max-h-0 opacity-0 transition-opacity duration-700";
@@ -134,9 +146,11 @@ const MobileMenu = (props: IMobileMenuProps) => {
     };
 
     return (
-        <div className={menuContainerClasses()}>
+        <div className={menuContainerClasses()} style={{ top: topValue }} >
             <ul className="flex flex-col gap-2">
-                <MenuLinks onClick={hideMobileMenu} linkStyle="" />
+                <div className="ml-2 w-[6rem]">
+                    <MenuLinks onClick={hideMobileMenu} linkStyle="" />
+                </div>
             </ul>
         </div>
     );

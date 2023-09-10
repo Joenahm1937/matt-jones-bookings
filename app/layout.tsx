@@ -18,7 +18,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${poppins.className} flex h-screen flex-col overflow-y-scroll`}
+                className={`${poppins.className} flex h-screen flex-col overflow-y-scroll overscroll-none`}
             >
                 <NavBar />
                 {children}
