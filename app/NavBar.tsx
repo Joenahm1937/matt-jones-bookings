@@ -41,14 +41,14 @@ export default function NavBar() {
     }, []);
 
     return (
-        <>
+        <div className="fixed z-50 w-full">
             <header
                 ref={headerRef}
-                className="fixed z-50 w-full bg-white bg-opacity-70 py-1 shadow-md"
+                className=" bg-white bg-opacity-70 py-1 shadow-md"
             >
                 <nav className="mx-auto flex w-11/12 items-center">
                     <Image src="/logo.png" alt="logo" width={60} height={60} />
-                    <div className="mx-12 flex-grow whitespace-nowrap text-center font-serif text-2xl xl:text-left">
+                    <div className="mx-12 flex-grow whitespace-nowrap text-center text-2xl font-bold xl:text-left">
                         {WEBSITE_TITLE}
                     </div>
                     <DesktopMenu />
@@ -63,7 +63,7 @@ export default function NavBar() {
                 hideMobileMenu={hideMobileMenu}
                 topValue={headerHeight}
             />
-        </>
+        </div>
     );
 }
 
@@ -146,9 +146,9 @@ const MobileMenu = (props: IMobileMenuProps) => {
     };
 
     return (
-        <div className={menuContainerClasses()} style={{ top: topValue }} >
+        <div className={menuContainerClasses()} style={{ top: topValue }}>
             <ul className="flex flex-col gap-2">
-                <div className="ml-2 w-[6rem]">
+                <div className="ml-2 w-full">
                     <MenuLinks onClick={hideMobileMenu} linkStyle="" />
                 </div>
             </ul>

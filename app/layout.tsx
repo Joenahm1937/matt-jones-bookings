@@ -1,9 +1,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Libre_Franklin } from "next/font/google";
 import NavBar from "./NavBar";
 
-const poppins = Poppins({ weight: "400", subsets: ["latin"] });
+const font = Libre_Franklin({ weight: "400", subsets: [] });
 
 export const metadata: Metadata = {
     title: "Create Next App",
@@ -18,7 +18,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${poppins.className} flex h-screen flex-col overflow-y-scroll overscroll-none`}
+                className={`${font.className} flex h-screen flex-col overflow-y-scroll overscroll-none`}
             >
                 <NavBar />
                 {children}

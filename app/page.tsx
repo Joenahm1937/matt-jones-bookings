@@ -1,4 +1,10 @@
-import Carousel from "./Carousel";
+import dynamic from "next/dynamic";
+
+// Uses window match query on first render so no SSR
+const NonSSRCarousel = dynamic(() => import("./Carousel"), {
+    ssr: false,
+    loading: () => <div className="h-screen bg-neutral-300"></div>,
+});
 
 export default function Home() {
     return (
@@ -16,7 +22,8 @@ export default function Home() {
                                 Matt's Booking
                             </h1>
                             <p className="text-xl xl:text-3xl">
-                                You take care of each other, and I'll take care of the rest
+                                You take care of each other, and I'll take care
+                                of the rest
                             </p>
                         </div>
 
@@ -27,7 +34,7 @@ export default function Home() {
                 </div>
             </div>
 
-            <Carousel/>
+            <NonSSRCarousel />
         </div>
     );
 }
