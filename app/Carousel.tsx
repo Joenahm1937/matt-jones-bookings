@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { NUM_CAROUSEL_IMAGES, CAROUSEL_INTERVAL_SECONDS } from "./constants";
+import {
+    NUM_CAROUSEL_IMAGES,
+    CAROUSEL_INTERVAL_SECONDS,
+    CAROUSEL_PHOTOS,
+} from "./constants";
+import { ICardProps, IPhoto } from "./interfaces";
 
 export default function Carousel() {
     const [activeSlide, setActiveSlide] = useState(1);
@@ -37,9 +42,6 @@ export default function Carousel() {
         setShowAdjacentImages(e.matches);
     };
 
-    const left = activeSlide === 0 ? NUM_CAROUSEL_IMAGES - 1 : activeSlide - 1;
-    const right = activeSlide === NUM_CAROUSEL_IMAGES - 1 ? 0 : activeSlide + 1;
-
     useEffect(() => {
         const mediaQuery = window.matchMedia("(min-width: 1280px)"); // Tailwind's xl breakpoint
         mediaQuery.addEventListener("change", handleMediaChange);
@@ -52,19 +54,33 @@ export default function Carousel() {
     }, []);
 
     return (
-        <div className="relative flex h-screen items-center justify-center overflow-hidden bg-[#f4eee6]">
+        <div className="relative flex h-screen items-center justify-center overflow-hidden">
+            <div
+                className={
+                    "absolute top-36 mx-auto flex w-full items-center justify-center text-center"
+                }
+            >
+                <span
+                    className={"mx-5 block h-0.5 w-[15vw] rounded-md bg-stone-500"}
+                ></span>
+                <h1 className="text-2xl lg:text-3xl">
+                    Past Events
+                </h1>
+                <span
+                    className={"mx-5 block h-0.5 w-[15vw] rounded-md bg-stone-500"}
+                ></span>
+            </div>
             <button
                 onClick={handlePrevClick}
-                className="absolute left-16 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 transform items-center justify-center rounded-full bg-white font-bold text-black "
+                className="absolute left-16 top-[56%] z-30 flex h-10 w-10 -translate-y-1/2 transform items-center justify-center rounded-full bg-white font-bold text-black sm:left-32 "
             >
                 &#8592;
             </button>
 
-            {[...Array(NUM_CAROUSEL_IMAGES)].map((_, idx) => (
+            {CAROUSEL_PHOTOS.map((photo, idx) => (
                 <Card
                     key={idx}
-                    src={`/carousel/wedding-photo-${idx}.jpg`}
-                    alt={`Slide ${idx}`}
+                    photo={photo}
                     isActive={activeSlide === idx}
                     isLeft={
                         activeSlide - 1 === idx ||
@@ -79,7 +95,7 @@ export default function Carousel() {
             ))}
             <button
                 onClick={handleNextClick}
-                className="absolute right-16 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 transform items-center justify-center rounded-full bg-white font-bold text-black"
+                className="absolute right-16 top-[56%] z-30 flex h-10 w-10 -translate-y-1/2 transform items-center justify-center rounded-full bg-white font-bold text-black sm:right-32"
             >
                 &#8594;
             </button>
@@ -87,17 +103,8 @@ export default function Carousel() {
     );
 }
 
-interface ICardProps {
-    src: string;
-    alt: string;
-    isActive: boolean;
-    isLeft: boolean;
-    isRight: boolean;
-    showAdjacentImages: boolean;
-}
-
 const Card = (props: ICardProps) => {
-    const { src, alt, isActive, isLeft, isRight, showAdjacentImages } = props;
+    const { photo, isActive, isLeft, isRight, showAdjacentImages } = props;
 
     let style;
     let zIndex = 0;
@@ -106,34 +113,32 @@ const Card = (props: ICardProps) => {
         style = "scale-100 opacity-100";
         zIndex = 10;
     } else if (isLeft) {
-        style = "translate-x-3/4 scale-75 opacity-70";
+        style = "translate-x-3/4 scale-[70%] opacity-70";
     } else if (isRight) {
-        style = "-translate-x-3/4 scale-75 opacity-70";
+        style = "-translate-x-3/4 scale-[70%] opacity-70";
     } else {
         style = "hidden";
     }
 
     return (
         <div
-            className={`absolute top-1/2 bg-[#f4eee6] ${
-                showAdjacentImages ? "w-1/3" : "w-full p-10 md:w-1/2 md:p-0"
+            className={`absolute top-[56%] rounded-2xl bg-[#e7ded2] shadow-[40px_40px_40px_40px_rgba(0,0,0,0.2)] ${
+                showAdjacentImages ? "w-1/3" : "w-[90%] p-10 md:w-1/2 md:p-0"
             } -translate-y-1/2 transform flex-col opacity-0 transition-transform duration-700 z-${zIndex} ${style}`}
         >
-            <div className="relative mb-4 flex h-[60vh] w-auto flex-col overflow-hidden rounded-2xl shadow-2xl">
-                <div className="relative h-full">
+            <div className="relative mb-4 flex h-[50vh] w-auto flex-col overflow-hidden rounded-2xl">
+                <div className="relative m-4 h-full">
                     <Image
-                        src={src}
-                        alt={alt}
+                        src={`/carousel/${photo.src}`}
+                        alt={photo.alt}
                         layout="fill"
                         objectFit="contain"
                         className="absolute left-0 top-0"
                     />
                 </div>
-                <div className="mt-4">
-                    <p className="shadow-text rounded-md px-4 py-2 text-base font-semibold tracking-wide shadow-lg transition-all md:text-lg lg:text-xl">
-                        This is some text that will describe the picture above -
-                        very very descriptive
-                        askdfhkashfaskdjhfkajsdhfkjasdhfkajsdhsldfjsdlkfjsldkjflsjdlfjsdlfjkdskl
+                <div className="mt-4 flex justify-center">
+                    <p className="shadow-text w-2/3 rounded-md bg-black bg-opacity-5 px-2 text-center text-base font-semibold tracking-wide text-white transition-all md:text-lg lg:text-xl">
+                        {photo.description}
                     </p>
                 </div>
             </div>

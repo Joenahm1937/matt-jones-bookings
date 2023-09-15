@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 // Uses window match query on first render so no SSR
 const NonSSRCarousel = dynamic(() => import("./Carousel"), {
     ssr: false,
-    loading: () => <div className="h-screen bg-neutral-300"></div>,
+    loading: () => <div className="h-screen"></div>,
 });
 
 export default function Home() {

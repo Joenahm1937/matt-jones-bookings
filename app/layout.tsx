@@ -18,7 +18,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${font.className} flex h-screen flex-col overflow-y-scroll overscroll-none`}
+                className={`${font.className} flex h-screen flex-col overflow-y-scroll overscroll-none bg-[#f4eee6]`}
             >
                 <NavBar />
                 {children}

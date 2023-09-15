@@ -3,22 +3,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { WEBSITE_TITLE } from "./constants";
-
-interface IMenuLinksProps {
-    linkStyle?: string;
-    onClick?: () => void;
-}
-
-interface IMobileMenuProps {
-    topValue: string;
-    isMenuOpen: boolean;
-    hideMobileMenu: () => void;
-}
-
-interface IHamburgerIconProps {
-    isMenuOpen: boolean;
-    toggleMobileMenu: () => void;
-}
+import {
+    IHamburgerIconProps,
+    IMenuLinksProps,
+    IMobileMenuProps,
+} from "./interfaces";
 
 export default function NavBar() {
     const headerRef = useRef<HTMLDivElement | null>(null);
