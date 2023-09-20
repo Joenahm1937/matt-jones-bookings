@@ -98,10 +98,10 @@ const MenuLinks = (props: IMenuLinksProps) => {
         { href: "/", text: "Home" },
         { href: "/About", text: "About" },
         { href: "/Booking", text: "Booking" },
-        { href: "/Contact", text: "Contact" },
+        { href: "/Events", text: "My Events" },
     ];
     return links.map((link) => (
-        <div className="group">
+        <div className="group" key={link.href}>
             <Link
                 key={link.href}
                 onClick={onClick}
@@ -127,7 +127,7 @@ const MobileMenu = (props: IMobileMenuProps) => {
     const { topValue, isMenuOpen, hideMobileMenu } = props;
 
     const menuContainerClasses = () => {
-        let baseClasses = `absolute w-full overflow-hidden rounded-b-lg bg-white bg-opacity-70 transition-all ease-in-out z-10`;
+        let baseClasses = `absolute w-full overflow-hidden rounded-b-lg bg-white bg-opacity-90 transition-all ease-in-out z-10`;
         let stateClasses = isMenuOpen
             ? "max-h-[500px] opacity-100 transition-opacity duration-300 px-2 py-4"
             : "max-h-0 opacity-0 transition-opacity duration-700";

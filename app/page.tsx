@@ -27,7 +27,7 @@ export default function Home() {
                             </p>
                         </div>
 
-                        <button className="rounded-full bg-slate-500 px-14 py-4 text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-opacity-50">
+                        <button className="rounded-full bg-slate-500 px-14 py-4  text-white shadow-md transition-all duration-200 hover:bg-slate-600 hover:text-white  active:translate-x-0.5 active:translate-y-0.5 active:bg-gray-800 active:shadow-inner">
                             Book Now
                         </button>
                     </div>
