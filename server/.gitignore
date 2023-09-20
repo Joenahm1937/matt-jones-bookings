@@ -1,0 +1,6 @@
+# Build System
+dist
+node_modules
+
+# Environment
+.env
