@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
 import { DateRange } from "react-day-picker";
+import type { SampleRequest } from "@backend/apiTypes";
 
 export type ResponseData = {
     busyDates: (Date | DateRange)[];

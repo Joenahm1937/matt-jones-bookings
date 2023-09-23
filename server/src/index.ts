@@ -4,24 +4,38 @@ import { google, calendar_v3 } from "googleapis";
 import path from "path";
 
 import { IEnvironmentVars, IServiceAccount } from "./interfaces";
+import {
+    Attendees,
+    IAuthURLResponse,
+    IGoogleAPICalendarEvents,
+    IMyEventAddedRequest,
+    IMyEventsResponse,
+} from "./apiTypes";
+import { validateEnvVariables } from "./utils";
+import { redirectURLs } from "./constants";
 
 dotenv.config();
-
-const app: Express = express();
 
 const {
     CLIENT_ID,
     CLIENT_SECRET,
-    REDIRECT_URL,
     CLIENT_URL,
     PORT,
     SERVICE_ACCOUNT_KEY_FILENAME,
     OWNER_CALENDAR_ID,
 } = process.env as unknown as IEnvironmentVars;
 
+validateEnvVariables();
+
+const app: Express = express();
+
+// Middleware
+app.use(express.json());
+
 // Google OAuth 2.0 Setup
 const OAuth2 = google.auth.OAuth2;
-const oauth2Client = new OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
+const oauth2Owner = new OAuth2(CLIENT_ID, CLIENT_SECRET, redirectURLs.owner);
+const oauth2Client = new OAuth2(CLIENT_ID, CLIENT_SECRET, redirectURLs.client);
 const clientCalendar = google.calendar({ version: "v3", auth: oauth2Client });
 
 // Google Service Account Setup
@@ -38,20 +52,40 @@ const serviceJWT = new google.auth.JWT(
 const serviceCalendar = google.calendar({ version: "v3", auth: serviceJWT });
 
 app.get("/", (_, res: Response) => {
-    res.send("Express + TypeScript Server");
+    res.send("Welcome to Matt's Bookings Server");
 });
 
-// OAuth URL Generation
+app.get("/auth-url-owner", (_, res: Response) => {
+    const url = oauth2Owner.generateAuthUrl({
+        access_type: "offline",
+        scope: "https://www.googleapis.com/auth/calendar",
+    });
+    const response: IAuthURLResponse = { url };
+    res.send(response);
+});
+
+app.get("/OAuth2OwnerCallback", async (req: Request, res: Response) => {
+    const { code } = req.query;
+
+    try {
+        const { tokens } = await oauth2Owner.getToken(code as string);
+        oauth2Owner.setCredentials(tokens);
+        res.send("Owner credentials have been set");
+    } catch (error) {
+        res.status(400).send("Error getting token from Google");
+    }
+});
+
 app.get("/auth-url", (_, res: Response) => {
     const url = oauth2Client.generateAuthUrl({
         access_type: "offline",
         scope: "https://www.googleapis.com/auth/calendar",
     });
-    res.send({ url });
+    const response: IAuthURLResponse = { url };
+    res.send(response);
 });
 
-// OAuth Callback Endpoint
-app.get("/oauth2callback", async (req: Request, res: Response) => {
+app.get("/OAuth2ClientCallback", async (req: Request, res: Response) => {
     const { code } = req.query;
 
     try {
@@ -63,8 +97,7 @@ app.get("/oauth2callback", async (req: Request, res: Response) => {
     }
 });
 
-// Add event to user's calendar using OAuth
-app.post("/add-user-event", async (req: Request, res: Response) => {
+app.post("/add-client-event", async (req: Request, res: Response) => {
     const event: calendar_v3.Schema$Event = req.body;
 
     try {
@@ -75,37 +108,56 @@ app.post("/add-user-event", async (req: Request, res: Response) => {
 
         res.send(response.data);
     } catch (error: any) {
-        res.status(400).send(error.message);
+        res.status(400).send(error);
     }
 });
 
-// Add event to business calendar using Service Account
-app.post("/add-matts-event", async (req: Request, res: Response) => {
-    const event: calendar_v3.Schema$Event = req.body;
+app.post("/add-my-event", async (req: Request, res: Response) => {
+    const event: IMyEventAddedRequest = req.body;
+    const myEmail: Attendees = { email: OWNER_CALENDAR_ID };
+    event.attendees.push(myEmail);
 
     try {
-        const response = await serviceCalendar.events.insert({
+        const apiResponse = await serviceCalendar.events.insert({
             calendarId: OWNER_CALENDAR_ID,
             requestBody: event,
         });
-
-        res.send(response.data);
+        // TODO:
+        // Currently attendees won't work because of domain delegation issue, but I want to add this so I can add events as pending and accept in the UI
+        // Send back limited info
+        res.send(apiResponse.data);
     } catch (error: any) {
+        console.log(error.response.data.error.errors);
         res.status(400).send(error.message);
     }
 });
 
-app.get("/get-matts-events", async (_, res: Response) => {
+app.get("/get-my-events", async (_, res: Response) => {
     try {
-        const response = await serviceCalendar.events.list({
+        const apiResponse = await serviceCalendar.events.list({
             calendarId: OWNER_CALENDAR_ID,
         });
-        res.send(response.data.items);
+        const events = apiResponse.data.items as
+            | IGoogleAPICalendarEvents[]
+            | undefined;
+        if (events) {
+            const response: IMyEventsResponse[] = events.map(
+                (event: IGoogleAPICalendarEvents) => ({
+                    status: event.status,
+                    summary: event.summary,
+                    start: event.start,
+                    end: event.end,
+                })
+            );
+            res.send(response);
+        } else {
+            throw new Error("Google API Response did not send valid response");
+        }
     } catch (error: any) {
         res.status(400).send(error.message);
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
+    console.log(`🚀 Server is running at ${CLIENT_URL}`);
 });
