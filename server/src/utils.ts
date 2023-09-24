@@ -1,15 +1,21 @@
 import fs from "fs";
 import dotenv from "dotenv";
-dotenv.config();
+import { google } from "googleapis";
+
 import {
     requiredEnvironmentVariables,
     serverURL,
     keyDirectoryPath,
     keyFilePath,
+    redirectURLs,
 } from "./constants";
+import { User } from "./interfaces";
+
+dotenv.config();
 
 /**
- * Ensure all environment variables are defined, or else exits the script
+ * Ensures all critical environment variables are set.
+ * Throws an error and exits the application if any are missing.
  */
 export const validateEnvVariables = (): void => {
     const missingEnvironmentVariables = requiredEnvironmentVariables.filter(
@@ -17,17 +23,18 @@ export const validateEnvVariables = (): void => {
     );
 
     if (missingEnvironmentVariables.length) {
-        throw new Error(`\n 🔥 The following environment variables are not set:
+        throw new Error(`🔥 The following environment variables are missing:
         ${missingEnvironmentVariables.join(", ")}
-        Missing critical environment variables. Exiting application \n`);
+        Exiting application.`);
     } else {
         console.log("✅ All Required Environment Variables Loaded");
     }
 };
 
 /**
- * Retrieves the refresh token for the owner from a file.
- * @returns {string | null} The refresh token if it exists, otherwise null.
+ * Retrieves the owner's refresh token from a file.
+ *
+ * @returns {string | null} The refresh token if found, otherwise null.
  */
 export function getOwnerRefreshTokenFromFile(): string | null {
     try {
@@ -37,7 +44,7 @@ export function getOwnerRefreshTokenFromFile(): string | null {
             return refreshToken;
         } else {
             console.log(
-                `✋ Owner needs to authenticate for calendar usage. Please navigate to ${serverURL}/auth-url-owner`
+                `✋ Owner needs to authenticate for calendar usage. Navigate to ${serverURL}/auth-url-owner`
             );
             return null;
         }
@@ -48,8 +55,9 @@ export function getOwnerRefreshTokenFromFile(): string | null {
 }
 
 /**
- * Writes the refresh token for the owner to a file.
- * @param refreshToken The Google API refresh token that allows us to reauthenticate the owner's OAuth client
+ * Persists the owner's refresh token to a file.
+ *
+ * @param refreshToken - The refresh token to be stored.
  */
 export function setOwnerRefreshTokenFromFile(refreshToken: string): void {
     if (!fs.existsSync(keyDirectoryPath)) {
@@ -57,4 +65,25 @@ export function setOwnerRefreshTokenFromFile(refreshToken: string): void {
     }
 
     fs.writeFileSync(keyFilePath, refreshToken, "utf8");
+}
+
+/**
+ * Retrieves or initializes a user's session containing the OAuth client and calendar instance.
+ *
+ * @param req - The Express request object.
+ * @returns {User} The User object containing the OAuth2 client and Google Calendar instance.
+ */
+export function getUserSession(req: Express.Request): User {
+    if (!req.session.user) {
+        const oauth2Client = new google.auth.OAuth2(
+            process.env.CLIENT_ID,
+            process.env.CLIENT_SECRET,
+            redirectURLs.client
+        );
+        const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+        Object.assign(req.session, {
+            user: { oauth2Client, calendar },
+        });
+    }
+    return req.session.user as User;
 }
