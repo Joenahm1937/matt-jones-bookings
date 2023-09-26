@@ -75,6 +75,7 @@ export function setOwnerRefreshTokenFromFile(refreshToken: string): void {
  */
 export function getUserSession(req: Express.Request): User {
     if (!req.session.user) {
+        console.log("👨 Creating new session for user");
         const oauth2Client = new google.auth.OAuth2(
             process.env.CLIENT_ID,
             process.env.CLIENT_SECRET,
