@@ -1,15 +1,22 @@
+import { createClient } from "redis";
 import { google, calendar_v3 } from "googleapis";
-import { OAuth2Client } from "google-auth-library";
-import fs from "fs";
+import { OAuth2Client, Credentials } from "google-auth-library";
 import { Attendee, EventRequest } from "../interfaces";
-import { TOKEN_FILE_PATH } from "../constants";
 import "dotenv/config";
+
+let RedisClient: ReturnType<typeof createClient>;
 
 export class Owner {
     oAuth2Client: OAuth2Client;
     private calendar: calendar_v3.Calendar;
+    private redisClient: typeof RedisClient;
 
-    constructor(clientId: string, clientSecret: string, redirectUrl: string) {
+    constructor(
+        clientId: string,
+        clientSecret: string,
+        redirectUrl: string,
+        redisClient: typeof RedisClient
+    ) {
         this.oAuth2Client = new google.auth.OAuth2(
             clientId,
             clientSecret,
@@ -19,13 +26,14 @@ export class Owner {
             version: "v3",
             auth: this.oAuth2Client,
         });
+        this.redisClient = redisClient;
     }
 
     async refreshTokenIfNeeded() {
         try {
-            const tokens = fs.readFileSync(TOKEN_FILE_PATH, "utf-8");
+            const tokens = await this.getTokensFromRedis();
             console.log("Authenticating Owner with Stored Tokens");
-            this.oAuth2Client.setCredentials(JSON.parse(tokens));
+            this.oAuth2Client.setCredentials(tokens);
         } catch (err) {
             console.error(
                 `No stored tokens found. Owner needs to authenticate at http://${process.env.IP_ADDR}:${process.env.PORT}/auth/owner-auth`
@@ -76,5 +84,17 @@ export class Owner {
                 `Error retrieving user events from Google API: ${error.message}`
             );
         }
+    }
+
+    async getTokensFromRedis(): Promise<Credentials> {
+        const tokensString = await this.redisClient.get("owner_tokens");
+        if (!tokensString) {
+            throw new Error("No tokens found in Redis.");
+        }
+        return JSON.parse(tokensString);
+    }
+
+    async saveTokensToRedis(tokens: Credentials): Promise<void> {
+        await this.redisClient.set("owner_tokens", JSON.stringify(tokens));
     }
 }

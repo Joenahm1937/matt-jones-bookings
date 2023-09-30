@@ -1,8 +1,7 @@
 import express from "express";
 import { getAuthURL, getTokens, revokeToken } from "../utils/googleAuth";
-import { CLIENT_URL, TOKEN_DIR_PATH, TOKEN_FILE_PATH } from "../constants";
+import { CLIENT_URL } from "../constants";
 import { owner } from "../server";
-import { ensureDirExists, writeJSONToFile } from "../utils/fileHelpers";
 
 const router = express.Router();
 
@@ -49,8 +48,7 @@ router.get("/oauth2OwnerCallback", async (req, res) => {
     const code = req.query.code as string;
     try {
         const { userTokens } = await getTokens(code, owner.oAuth2Client);
-        ensureDirExists(TOKEN_DIR_PATH);
-        writeJSONToFile(TOKEN_FILE_PATH, userTokens);
+        await owner.saveTokensToRedis(userTokens);
         res.send("Successfully authenticated and stored tokens for the owner.");
     } catch (error: any) {
         res.status(500).send(`Error authenticating owner: ${error.message}`);

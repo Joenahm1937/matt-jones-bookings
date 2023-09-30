@@ -25,9 +25,6 @@ const CLIENT_ID = process.env.CLIENT_ID!;
 const CLIENT_SECRET = process.env.CLIENT_SECRET!;
 const OWNER_REDIRECT_URL = process.env.OWNER_REDIRECT_URL!;
 
-export const owner = new Owner(CLIENT_ID, CLIENT_SECRET, OWNER_REDIRECT_URL);
-owner.refreshTokenIfNeeded();
-
 // Redis
 let redisClient = createClient();
 redisClient.connect().catch((err) => {
@@ -39,6 +36,9 @@ let redisStore = new RedisStore({
     client: redisClient,
     prefix: "sessionStore:",
 });
+
+export const owner = new Owner(CLIENT_ID, CLIENT_SECRET, OWNER_REDIRECT_URL, redisClient);
+owner.refreshTokenIfNeeded();
 
 // Middleware
 app.use(express.json());

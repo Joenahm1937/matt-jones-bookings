@@ -46,3 +46,24 @@ First, run the development server:
 ```bash
 npm run dev
 ```
+
+### Redis
+
+- [macOS](https://redis.io/docs/getting-started/installation/install-redis-on-mac-os/)
+- [Linux](https://redis.io/docs/getting-started/installation/install-redis-on-linux/)
+
+** Since I use macOS for local dev **
+- start background process: `brew services start redis`
+- stop service: `brew services stop redis`
+- launch redis-cli: `redis-cli`
+- flush db: `FLUSHDB`
+
+```
+$ redis-cli
+redis 127.0.0.1:6379> ping
+PONG
+redis 127.0.0.1:6379> set mykey somevalue
+OK
+redis 127.0.0.1:6379> get mykey
+"somevalue"
+```
