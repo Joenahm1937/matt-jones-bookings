@@ -1,202 +1,72 @@
-// TODO:
-// Remove Duplicate Code. Adding events for both client and user should be similar
-// Add route for retrieving a particular user's events (this means figuring out how to get the user's email when they authenticate)
-// Test Client routes - Owner routes function correctly
-
-import express, { Express, Request, Response } from "express";
+import express from "express";
 import session from "express-session";
-import dotenv from "dotenv";
-import { google, calendar_v3 } from "googleapis";
+import RedisStore from "connect-redis";
+import { createClient } from "redis";
 
-import { IEnvironmentVars, User } from "./interfaces";
-import {
-    Attendees,
-    IAuthURLResponse,
-    IGoogleAPICalendarEvents,
-    IMyEventAddedRequest,
-    IMyEventsResponse,
-} from "./apiTypes";
-import {
-    getOwnerRefreshTokenFromFile,
-    getUserSession,
-    setOwnerRefreshTokenFromFile,
-    validateEnvVariables,
-} from "./utils";
-import { serverURL, redirectURLs } from "./constants";
+import authRoutes from "./routes/auth";
+import eventRoutes from "./routes/events";
+import { UserInfo } from "./interfaces";
+import { ensureAuthenticated } from "./utils/middleware";
+import checkEnvVars from "./utils/envCheck";
+import { Owner } from "./utils/Owner";
+import "dotenv/config";
+
+const app = express();
 
 declare module "express-session" {
-    interface SessionData {
-        user: User;
-    }
+    interface SessionData extends UserInfo {}
 }
 
-dotenv.config();
+checkEnvVars();
+const PORT = process.env.PORT;
+const IP_ADDR = process.env.IP_ADDR;
 
-validateEnvVariables();
-const {
-    CLIENT_ID,
-    CLIENT_SECRET,
-    CLIENT_URL,
-    PORT,
-    OWNER_CALENDAR_ID,
-    OWNER_AUTH_PASSPHRASE,
-    SESSION_SECRET,
-} = process.env as unknown as IEnvironmentVars;
+const CLIENT_ID = process.env.CLIENT_ID!;
+const CLIENT_SECRET = process.env.CLIENT_SECRET!;
+const OWNER_REDIRECT_URL = process.env.OWNER_REDIRECT_URL!;
 
-const app: Express = express();
+export const owner = new Owner(CLIENT_ID, CLIENT_SECRET, OWNER_REDIRECT_URL);
+owner.refreshTokenIfNeeded();
+
+// Redis
+let redisClient = createClient();
+redisClient.connect().catch((err) => {
+    console.error("Error connecting to Redis:", err);
+    process.exit(1);
+});
+
+let redisStore = new RedisStore({
+    client: redisClient,
+    prefix: "sessionStore:",
+});
 
 // Middleware
 app.use(express.json());
 app.use(
     session({
-        secret: SESSION_SECRET,
+        store: redisStore,
+        secret: process.env.SESSION_SECRET!,
         resave: false,
         saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 24 * 60 * 60 * 1000,
+        },
     })
 );
 
-// Google OAuth 2.0 Setup
-const oauth2Owner = new google.auth.OAuth2(
-    CLIENT_ID,
-    CLIENT_SECRET,
-    redirectURLs.owner
-);
-const refreshToken = getOwnerRefreshTokenFromFile();
-if (refreshToken) {
-    oauth2Owner.setCredentials({ refresh_token: refreshToken });
-}
-const ownerCalendar = google.calendar({ version: "v3", auth: oauth2Owner });
+// Routes
+app.use("/auth", authRoutes);
+app.use("/events", ensureAuthenticated, eventRoutes);
 
-app.get("/", (_, res: Response) => {
-    res.send("Welcome to Matt's Bookings Server");
+app.listen(PORT, async () => {
+    console.log(`Server started on http://${IP_ADDR}:${PORT}`);
 });
 
-app.get("/auth-url-owner", (req: Request, res: Response) => {
-    const { passphrase } = req.query;
-    if (passphrase !== OWNER_AUTH_PASSPHRASE) {
-        return res.status(403).send("Unauthorized");
-    }
-
-    const url = oauth2Owner.generateAuthUrl({
-        access_type: "offline",
-        scope: "https://www.googleapis.com/auth/calendar",
-    });
-    const response: IAuthURLResponse = { url };
-    res.send(response);
-});
-
-app.get("/OAuth2OwnerCallback", async (req: Request, res: Response) => {
-    const { code } = req.query;
-
-    try {
-        const { tokens } = await oauth2Owner.getToken(code as string);
-        oauth2Owner.setCredentials(tokens);
-        if (tokens.refresh_token) {
-            setOwnerRefreshTokenFromFile(tokens.refresh_token);
-        }
-        res.send("Owner credentials have been set");
-    } catch (error) {
-        res.status(400).send(`Error getting token from Google: ${error}`);
-    }
-});
-
-app.get("/client-login", (req: Request, res: Response) => {
-    const { oauth2Client } = getUserSession(req);
-    const url = oauth2Client.generateAuthUrl({
-        access_type: "offline",
-        scope: "https://www.googleapis.com/auth/calendar",
-    });
-    const response: IAuthURLResponse = { url };
-    res.send(response);
-});
-
-app.get("/client-logout", (req: Request, res: Response) => {
-    const { oauth2Client } = getUserSession(req);
-    oauth2Client.revokeCredentials();
-    res.send("Logged out successfully.");
-});
-
-app.get("/OAuth2ClientCallback", async (req: Request, res: Response) => {
-    const { code } = req.query;
-    const { oauth2Client } = getUserSession(req);
-
-    try {
-        const { tokens } = await oauth2Client.getToken(code as string);
-        oauth2Client.setCredentials(tokens);
-        res.redirect(CLIENT_URL);
-    } catch (error) {
-        console.error("Error getting token from Google:", error);
-        res.status(400).send("Error getting token from Google");
-    }
-});
-
-app.post("/add-client-event", async (req: Request, res: Response) => {
-    const event: calendar_v3.Schema$Event = req.body;
-    const { calendar } = getUserSession(req);
-
-    try {
-        const response = await calendar.events.insert({
-            calendarId: "primary",
-            requestBody: event,
-        });
-
-        res.send(response.data);
-    } catch (error: any) {
-        res.status(400).send(error);
-    }
-});
-
-app.post("/add-my-event", async (req: Request, res: Response) => {
-    const eventRequest: IMyEventAddedRequest = req.body;
-    const myEmail: Attendees = { email: OWNER_CALENDAR_ID };
-    eventRequest.attendees.push(myEmail);
-
-    try {
-        const apiResponse = await ownerCalendar.events.insert({
-            calendarId: OWNER_CALENDAR_ID,
-            requestBody: eventRequest,
-        });
-
-        const event = apiResponse.data as IGoogleAPICalendarEvents;
-        const response: IMyEventsResponse = {
-            attendees: event.attendees,
-            summary: event.summary,
-            start: event.start,
-            end: event.end,
-        };
-        res.send(response);
-    } catch (error: any) {
-        console.log(error.response.data.error.errors);
-        res.status(400).send(error.message);
-    }
-});
-
-app.get("/get-my-events", async (_, res: Response) => {
-    try {
-        const apiResponse = await ownerCalendar.events.list({
-            calendarId: OWNER_CALENDAR_ID,
-        });
-        const events = apiResponse.data.items as
-            | IGoogleAPICalendarEvents[]
-            | undefined;
-        if (events) {
-            const response: IMyEventsResponse[] = events.map(
-                (event: IGoogleAPICalendarEvents) => ({
-                    attendees: event.attendees,
-                    summary: event.summary,
-                    start: event.start,
-                    end: event.end,
-                })
-            );
-            res.send(response);
-        } else {
-            throw new Error("Google API Response did not send valid response");
-        }
-    } catch (error: any) {
-        res.status(400).send(error.message);
-    }
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running at ${serverURL}`);
+// Handle graceful shutdown
+process.on("SIGINT", () => {
+    console.log("Gracefully shutting down...");
+    redisClient.disconnect();
+    process.exit(0);
 });
