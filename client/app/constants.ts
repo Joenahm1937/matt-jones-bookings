@@ -30,3 +30,4 @@ export const CAROUSEL_PHOTOS: IPhoto[] = [
         description: "Very very professional looking.",
     },
 ];
+export const SERVER_URL = "http://localhost:3001";

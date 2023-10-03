@@ -98,7 +98,7 @@ const MenuLinks = (props: IMenuLinksProps) => {
         { href: "/", text: "Home" },
         { href: "/About", text: "About" },
         { href: "/Booking", text: "Booking" },
-        { href: "/Events", text: "My Events" },
+        { href: "/MyEvents", text: "My Events" },
     ];
     return links.map((link) => (
         <div className="group" key={link.href}>

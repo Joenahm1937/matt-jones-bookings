@@ -1,15 +1,18 @@
 import express from "express";
 import session from "express-session";
+import cors from "cors";
 import RedisStore from "connect-redis";
 import { createClient } from "redis";
 
-import authRoutes from "./routes/auth";
-import eventRoutes from "./routes/events";
-import { UserInfo } from "./interfaces";
+import authRoutes from "./routes/authRouter";
+import protectedRoutes from "./routes/protectedRouter";
+import publicRoutes from "./routes/publicRouter";
 import { ensureAuthenticated } from "./utils/middleware";
+import { UserInfo } from "./interfaces";
 import checkEnvVars from "./utils/envCheck";
 import { Owner } from "./utils/Owner";
 import "dotenv/config";
+import { CLIENT_URL } from "./constants";
 
 const app = express();
 
@@ -37,11 +40,21 @@ let redisStore = new RedisStore({
     prefix: "sessionStore:",
 });
 
-export const owner = new Owner(CLIENT_ID, CLIENT_SECRET, OWNER_REDIRECT_URL, redisClient);
+export const owner = new Owner(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    OWNER_REDIRECT_URL,
+    redisClient
+);
 owner.refreshTokenIfNeeded();
 
 // Middleware
 app.use(express.json());
+app.use(
+    cors({
+        origin: CLIENT_URL,
+    })
+);
 app.use(
     session({
         store: redisStore,
@@ -58,7 +71,8 @@ app.use(
 
 // Routes
 app.use("/auth", authRoutes);
-app.use("/events", ensureAuthenticated, eventRoutes);
+app.use("/public", publicRoutes);
+app.use("/protected", ensureAuthenticated, protectedRoutes);
 
 app.listen(PORT, async () => {
     console.log(`Server started on http://${IP_ADDR}:${PORT}`);

@@ -1,6 +1,10 @@
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
-import { IUserSelection } from "./interfaces";
+import { IEventDates, IUserSelection } from "./interfaces";
+import type {
+    GetAllEventsResponse,
+    ScrubbedEventData,
+} from "@backendTypes/index";
 
 const conveyUserSelection = (range: DateRange | undefined): IUserSelection => {
     const { from, to } = range || {};
@@ -27,6 +31,35 @@ const conveyUserSelection = (range: DateRange | undefined): IUserSelection => {
     }
 
     return userSelection;
+};
+
+const extractDatesFromRange = (eventArray: ScrubbedEventData[]) => {
+    let dates: DateRange[] = [];
+
+    eventArray.forEach((event) => {
+        if (event.start?.date && event.end?.date) {
+            const startDate = new Date(event.start.date);
+            const endDate = new Date(event.end.date);
+            dates.push({
+                from: startDate,
+                to: endDate,
+            });
+        }
+    });
+
+    return dates;
+};
+
+export const transformEvents = (
+    eventsResponse: GetAllEventsResponse,
+): IEventDates => {
+    return {
+        acceptedDates: extractDatesFromRange([
+            ...eventsResponse.noStatus,
+            ...eventsResponse.accepted,
+        ]),
+        pendingDates: extractDatesFromRange(eventsResponse.needsAction),
+    };
 };
 
 export { conveyUserSelection };

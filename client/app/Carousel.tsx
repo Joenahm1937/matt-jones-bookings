@@ -6,7 +6,7 @@ import {
     CAROUSEL_INTERVAL_SECONDS,
     CAROUSEL_PHOTOS,
 } from "./constants";
-import { ICardProps, IPhoto } from "./interfaces";
+import { ICardProps } from "./interfaces";
 
 export default function Carousel() {
     const [activeSlide, setActiveSlide] = useState(1);

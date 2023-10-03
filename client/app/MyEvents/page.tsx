@@ -1,4 +1,4 @@
-export default function Contact() {
+export default function MyEvents() {
     return (
         <div className="flex h-screen items-center justify-center">
             <h1 className="text-xl">My Events</h1>

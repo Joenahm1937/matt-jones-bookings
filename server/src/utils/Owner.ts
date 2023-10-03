@@ -1,7 +1,13 @@
 import { createClient } from "redis";
 import { google, calendar_v3 } from "googleapis";
 import { OAuth2Client, Credentials } from "google-auth-library";
-import { Attendee, EventRequest } from "../interfaces";
+import {
+    Attendee,
+    InsertEventRequest,
+    ResponseStatus,
+    GetAllEventsResponse,
+    ScrubbedEventData,
+} from "../interfaces";
 import "dotenv/config";
 
 let RedisClient: ReturnType<typeof createClient>;
@@ -42,7 +48,7 @@ export class Owner {
     }
 
     async insertEvent(
-        eventRequest: EventRequest,
+        eventRequest: InsertEventRequest,
         clientEmail: string
     ): Promise<calendar_v3.Schema$Event> {
         const attendees: Attendee[] = [
@@ -55,6 +61,56 @@ export class Owner {
             requestBody: eventRequest,
         });
         return response.data;
+    }
+
+    async getOwnerEventsByResponseStatus(): Promise<GetAllEventsResponse> {
+        try {
+            const response = await this.calendar.events.list({
+                calendarId: process.env.OWNER_CALENDAR_ID!,
+                maxResults: 2500,
+                singleEvents: true,
+                orderBy: "startTime",
+            });
+
+            const events = response.data.items || [];
+            const ownerEmail = process.env.OWNER_CALENDAR_ID!;
+
+            const groupedEvents: GetAllEventsResponse = {
+                needsAction: [],
+                tentative: [],
+                accepted: [],
+                noStatus: [],
+            };
+
+            events.forEach((event) => {
+                const filteredEventData: ScrubbedEventData = {
+                    start: event.start,
+                    end: event.end,
+                };
+                const ownerAttendee = event.attendees?.find(
+                    (attendee) => attendee.email === ownerEmail
+                );
+                if (
+                    ownerAttendee &&
+                    ownerAttendee.responseStatus &&
+                    Object.keys(groupedEvents).includes(
+                        ownerAttendee.responseStatus
+                    )
+                ) {
+                    groupedEvents[
+                        ownerAttendee.responseStatus as ResponseStatus
+                    ].push(filteredEventData);
+                } else {
+                    groupedEvents.noStatus.push(filteredEventData);
+                }
+            });
+
+            return groupedEvents;
+        } catch (error: any) {
+            throw new Error(
+                `Error retrieving owner's events by response status: ${error.message}`
+            );
+        }
     }
 
     async getUserEvents(
@@ -91,7 +147,11 @@ export class Owner {
         if (!tokensString) {
             throw new Error("No tokens found in Redis.");
         }
-        return JSON.parse(tokensString);
+        const tokens: Credentials = JSON.parse(tokensString);
+        if (!("refresh_token" in tokens)) {
+            throw new Error("Refresg token missing in Credentials.");
+        }
+        return tokens;
     }
 
     async saveTokensToRedis(tokens: Credentials): Promise<void> {

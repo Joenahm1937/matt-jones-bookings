@@ -24,7 +24,25 @@ export type Attendee = {
     email: string;
 };
 
-export interface EventRequest {
+export interface GetLoginStatusResponse {
+    loggedIn: boolean;
+}
+
+export interface ScrubbedEventData {
+    start?: calendar_v3.Schema$EventDateTime;
+    end?: calendar_v3.Schema$EventDateTime;
+}
+
+export interface GetAllEventsResponse {
+    needsAction: ScrubbedEventData[];
+    tentative: ScrubbedEventData[];
+    accepted: ScrubbedEventData[];
+    noStatus: ScrubbedEventData[];
+}
+
+export type ResponseStatus = keyof GetAllEventsResponse;
+
+export interface InsertEventRequest {
     summary: string;
     location: string;
     start: calendar_v3.Schema$EventDateTime;
@@ -32,8 +50,10 @@ export interface EventRequest {
     attendees?: Attendee[];
 }
 
-export interface EventResponse {
+export interface InsertEventResponse {
     summary?: string;
     start?: calendar_v3.Schema$EventDateTime;
     end?: calendar_v3.Schema$EventDateTime;
 }
+
+export type GetUserEventsResponse = calendar_v3.Schema$Event[];

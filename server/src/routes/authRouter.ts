@@ -2,6 +2,7 @@ import express from "express";
 import { getAuthURL, getTokens, revokeToken } from "../utils/googleAuth";
 import { CLIENT_URL } from "../constants";
 import { owner } from "../server";
+import { GetLoginStatusResponse } from "../interfaces";
 
 const router = express.Router();
 
@@ -23,6 +24,12 @@ router.get("/logout", (req, res) => {
         res.clearCookie("connect.sid");
         res.redirect(CLIENT_URL);
     });
+});
+
+router.get("/isLoggedIn", (req, res) => {
+    const isAuthenticated = !!(req.session && req.session.userTokens);
+    const response: GetLoginStatusResponse = { loggedIn: isAuthenticated };
+    res.json(response);
 });
 
 router.get("/owner-auth", (req, res) => {

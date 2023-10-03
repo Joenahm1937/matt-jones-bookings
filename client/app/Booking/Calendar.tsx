@@ -7,13 +7,17 @@ import {
 } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import "./day-picker.css";
-import { conveyUserSelection } from "./utils";
-import { IUserSelection } from "./interfaces";
-import { ResponseData } from "./calendar/route";
+import { conveyUserSelection, transformEvents } from "./utils";
+import { IEventDates, IUserSelection } from "./interfaces";
+import { SERVER_URL } from "../constants";
+import type { GetAllEventsResponse } from "@backendTypes/index";
 
 export default function Booking() {
     const [range, setRange] = useState<DateRange | undefined>();
-    const [disabledDays, setDisabledDays] = useState<(Date | DateRange)[]>([]);
+    const [eventDates, setEventDates] = useState<IEventDates>({
+        acceptedDates: [],
+        pendingDates: [],
+    });
     const [showDesktopView, setShowDesktopView] = useState(
         window.matchMedia("(min-width: 1280px)").matches,
     );
@@ -46,23 +50,10 @@ export default function Booking() {
 
     const fetchBusyDays = async () => {
         try {
-            const response = await fetch("/Booking/calendar");
-            if (!response.ok) {
-                throw new Error("Failed to fetch events");
-            }
-            const data: ResponseData = await response.json();
-            const hydratedData = data.busyDates.map((date) => {
-                if (typeof date === "string") {
-                    return new Date(date);
-                } else {
-                    const { from, to } = date as DateRange;
-                    return {
-                        from: from && new Date(from),
-                        to: to && new Date(to),
-                    };
-                }
-            });
-            setDisabledDays(hydratedData);
+            const response = await fetch(`${SERVER_URL}/public/blockedDays`);
+            const data: GetAllEventsResponse = await response.json();
+            const transformedData: IEventDates = transformEvents(data);
+            setEventDates(transformedData);
         } catch (error) {
             console.error("Error fetching events:", error);
         }
@@ -101,7 +92,7 @@ export default function Booking() {
                 <DayPicker
                     mode="range"
                     selected={range}
-                    disabled={disabledDays}
+                    disabled={eventDates.acceptedDates}
                     onSelect={handleRangeSelection}
                     captionLayout="dropdown-buttons"
                     max={6}
@@ -115,7 +106,7 @@ export default function Booking() {
             <button
                 className={`h-14 w-56 transform rounded-lg px-4 py-2 shadow-md transition-all duration-200 hover:bg-black hover:text-white focus:outline-none ${
                     isDisabled
-                        ? "bg-gray-300 opacity-60 scale-75"
+                        ? "scale-75 bg-gray-300 opacity-60"
                         : "bg-white text-black"
                 }`}
                 disabled={isDisabled}
