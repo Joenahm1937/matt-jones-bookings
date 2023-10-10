@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, createContext, useContext } from "react";
-import Spinner from "./Spinner";
-import NavBar from "./NavBar";
-import { SERVER_URL } from "./constants";
+import Spinner from "./Components/Spinner";
+import NavBar from "./Components/NavBar";
+import { SERVER_URL } from "./Constants";
 import { GetLoginStatusResponse } from "@backendTypes/index";
 
 type LoadingContextType = {

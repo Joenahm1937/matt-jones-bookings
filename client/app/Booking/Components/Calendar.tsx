@@ -7,9 +7,9 @@ import {
 } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import "./day-picker.css";
-import { conveyUserSelection, transformEvents } from "./utils";
-import { IEventDates, IUserSelection } from "./interfaces";
-import { SERVER_URL } from "../constants";
+import { conveyUserSelection, transformEvents } from "../utils";
+import { IEventDates, IUserSelection } from "../Interfaces";
+import { SERVER_URL } from "../../Constants";
 import type { GetAllEventsResponse } from "@backendTypes/index";
 
 export default function Booking() {

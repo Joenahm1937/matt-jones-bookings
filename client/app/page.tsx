@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 
 // Uses window match query on first render so no SSR
-const NonSSRCarousel = dynamic(() => import("./Carousel"), {
+const NonSSRCarousel = dynamic(() => import("./Components/Carousel"), {
     ssr: false,
     loading: () => <div className="h-screen"></div>,
 });

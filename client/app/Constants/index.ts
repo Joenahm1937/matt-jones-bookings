@@ -1,4 +1,4 @@
-import { IPhoto } from "./interfaces";
+import { IPhoto } from "../Interfaces";
 
 export const WEBSITE_TITLE = "Matt's Bookings";
 export const NUM_CAROUSEL_IMAGES = 5;

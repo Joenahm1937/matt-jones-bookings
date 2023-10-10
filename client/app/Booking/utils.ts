@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
-import { IEventDates, IUserSelection } from "./interfaces";
+import { IEventDates, IUserSelection } from "./Interfaces";
 import type {
     GetAllEventsResponse,
     ScrubbedEventData,

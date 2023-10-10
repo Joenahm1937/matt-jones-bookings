@@ -2,13 +2,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { WEBSITE_TITLE } from "./constants";
+import { WEBSITE_TITLE } from "../Constants";
 import {
     IHamburgerIconProps,
     IMenuLinksProps,
     IMobileMenuProps,
-} from "./interfaces";
-import { useLoading, useLogin } from "./template";
+} from "../Interfaces";
+import { useLoading, useLogin } from "../template";
 
 export default function NavBar() {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -95,20 +95,26 @@ const HamburgerIcon = (props: IHamburgerIconProps) => {
 
 const MenuLinks = (props: IMenuLinksProps) => {
     const { linkStyle, onClick } = props;
+    const { loading, setLoading } = useLoading();
+    const { isLoggedIn } = useLogin();
     const links = [
         { href: "/", text: "Home" },
         { href: "/Booking", text: "Booking" },
-        { href: "/MyEvents", text: "My Events" },
     ];
-    const { setLoading } = useLoading();
+    if (isLoggedIn) links.push({ href: "/MyEvents", text: "My Events" });
     const onPageTransition = (href: string) => {
         /**
          * Navigating to the same page prevent template.tsx from loading,
          * meaning the loading state will infinitely remain true.
          * Therefore, we need to only set loading state to true
-         * when navigating to a diferent page
+         * when navigating to a diferent page.
+         * As a fail safe, we kill loading state after 2 sec which is unacceptable latency.
          */
-        if (window.location.pathname !== href) setLoading(true);
+        if (window.location.pathname !== href) {
+            setLoading(true);
+            setTimeout(() => loading && setLoading(false), 2000);
+        }
+
         onClick && onClick();
     };
     return links.map((link) => (
@@ -130,7 +136,7 @@ const LoginButton = () => {
     return (
         <li>
             <button
-                className="rounded-md bg-stone-500 px-8 py-2 text-lg font-medium transition-colors duration-200 hover:text-white"
+                className="rounded-md bg-stone-500 px-8 py-2 text-lg font-medium text-white transition-colors duration-200 hover:text-black"
                 onClick={() => {
                     console.log("Logging in");
                 }}
@@ -145,7 +151,7 @@ const LogoutButton = () => {
     return (
         <li>
             <button
-                className={`bg-stone-500 text-white`}
+                className={`rounded-md bg-slate-500 px-6 py-2 text-lg font-medium text-white transition-colors duration-200 hover:text-black`}
                 onClick={() => {
                     console.log("Logging out");
                 }}
