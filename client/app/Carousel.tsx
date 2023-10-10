@@ -43,7 +43,7 @@ export default function Carousel() {
     };
 
     useEffect(() => {
-        const mediaQuery = window.matchMedia("(min-width: 1280px)"); // Tailwind's xl breakpoint
+        const mediaQuery = window.matchMedia("(min-width: 1024px)"); // Tailwind's xl breakpoint
         mediaQuery.addEventListener("change", handleMediaChange);
         resetInterval();
 
@@ -62,13 +62,13 @@ export default function Carousel() {
             >
                 <span
                     className={
-                        "mx-5 block h-0.5 w-[15vw] rounded-md bg-stone-500"
+                        "mx-5 block h-0.5 w-[12vw] rounded-md bg-stone-500"
                     }
                 ></span>
-                <h1 className="text-2xl lg:text-3xl">Past Events</h1>
+                <h1 className="text-2xl text-white lg:text-3xl">Past Events</h1>
                 <span
                     className={
-                        "mx-5 block h-0.5 w-[15vw] rounded-md bg-stone-500"
+                        "mx-5 block h-0.5 w-[12vw] rounded-md bg-stone-500"
                     }
                 ></span>
             </div>
@@ -124,26 +124,21 @@ const Card = (props: ICardProps) => {
 
     return (
         <div
-            className={`absolute top-[56%] rounded-2xl bg-[#f2e5d4] shadow-[40px_40px_40px_40px_rgba(0,0,0,0.2)] ${
-                showAdjacentImages ? "w-1/3" : "w-[90%] md:w-1/2 md:p-0"
+            className={`absolute top-[56%] rounded-3xl shadow-[20px_20px_20px_20px_rgba(0,0,0,0.2)] ${
+                showAdjacentImages
+                    ? "h-[500px] w-[700px]"
+                    : "h-[300px] w-[400px]"
             } -translate-y-1/2 transform flex-col opacity-0 transition-transform duration-700 z-${zIndex} ${style}`}
         >
-            <div className="relative mb-4 flex h-[45vh] w-auto flex-col overflow-hidden rounded-2xl">
-                <div className="relative m-4 h-full">
-                    <Image
-                        priority
-                        src={`/carousel/${photo.src}`}
-                        alt={photo.alt}
-                        fill
-                        sizes="(max-width: 768px) 100vw"
-                        className="absolute left-0 top-0 object-contain"
-                    />
-                </div>
-                <div className="flex justify-center">
-                    <p className="shadow-text w-2/3 rounded-md bg-black bg-opacity-5 px-2 text-center text-base font-semibold tracking-wide text-white transition-all md:text-lg lg:text-xl">
-                        {photo.description}
-                    </p>
-                </div>
+            <div className="relative flex h-full flex-col overflow-hidden rounded-3xl">
+                <Image
+                    priority
+                    src={`/carousel/${photo.src}`}
+                    alt={photo.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw"
+                    className="absolute left-0 top-0 object-fill"
+                />
             </div>
         </div>
     );

@@ -8,6 +8,7 @@ import {
     IMenuLinksProps,
     IMobileMenuProps,
 } from "./interfaces";
+import { useLoading, useLogin } from "./template";
 
 export default function NavBar() {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -33,11 +34,11 @@ export default function NavBar() {
         <div className="fixed z-50 w-full">
             <header
                 ref={headerRef}
-                className=" bg-white bg-opacity-70 py-1 shadow-md"
+                className=" bg-white bg-opacity-90 py-1 shadow-md"
             >
                 <nav className="mx-auto flex w-11/12 items-center">
                     <Image src="/logo.png" alt="logo" width={60} height={60} />
-                    <div className="mx-12 flex-grow whitespace-nowrap text-center text-2xl font-bold xl:text-left">
+                    <div className="mx-12 flex-grow whitespace-nowrap text-center text-xl xl:text-left">
                         {WEBSITE_TITLE}
                     </div>
                     <DesktopMenu />
@@ -96,15 +97,25 @@ const MenuLinks = (props: IMenuLinksProps) => {
     const { linkStyle, onClick } = props;
     const links = [
         { href: "/", text: "Home" },
-        { href: "/About", text: "About" },
         { href: "/Booking", text: "Booking" },
         { href: "/MyEvents", text: "My Events" },
     ];
+    const { setLoading } = useLoading();
+    const onPageTransition = (href: string) => {
+        /**
+         * Navigating to the same page prevent template.tsx from loading,
+         * meaning the loading state will infinitely remain true.
+         * Therefore, we need to only set loading state to true
+         * when navigating to a diferent page
+         */
+        if (window.location.pathname !== href) setLoading(true);
+        onClick && onClick();
+    };
     return links.map((link) => (
         <div className="group" key={link.href}>
             <Link
                 key={link.href}
-                onClick={onClick}
+                onClick={() => onPageTransition(link.href)}
                 href={link.href}
                 className={`relative block px-4 py-2 text-lg font-medium transition-colors duration-200 ${linkStyle}`}
             >
@@ -115,15 +126,50 @@ const MenuLinks = (props: IMenuLinksProps) => {
     ));
 };
 
-const DesktopMenu = () => (
-    <div className="hidden xl:block">
-        <ul className="flex gap-36">
-            <MenuLinks />
-        </ul>
-    </div>
-);
+const LoginButton = () => {
+    return (
+        <li>
+            <button
+                className="rounded-md bg-stone-500 px-8 py-2 text-lg font-medium transition-colors duration-200 hover:text-white"
+                onClick={() => {
+                    console.log("Logging in");
+                }}
+            >
+                Login
+            </button>
+        </li>
+    );
+};
+
+const LogoutButton = () => {
+    return (
+        <li>
+            <button
+                className={`bg-stone-500 text-white`}
+                onClick={() => {
+                    console.log("Logging out");
+                }}
+            >
+                Logout
+            </button>
+        </li>
+    );
+};
+
+const DesktopMenu = () => {
+    const { isLoggedIn } = useLogin();
+    return (
+        <div className="hidden xl:block">
+            <ul className="flex gap-36">
+                <MenuLinks />
+                {isLoggedIn ? <LogoutButton /> : <LoginButton />}
+            </ul>
+        </div>
+    );
+};
 
 const MobileMenu = (props: IMobileMenuProps) => {
+    const { isLoggedIn } = useLogin();
     const { topValue, isMenuOpen, hideMobileMenu } = props;
 
     const menuContainerClasses = () => {
@@ -139,6 +185,9 @@ const MobileMenu = (props: IMobileMenuProps) => {
             <ul className="flex flex-col gap-2">
                 <div className="ml-2 w-full">
                     <MenuLinks onClick={hideMobileMenu} linkStyle="" />
+                    <ul className="px-3 pt-5">
+                        {isLoggedIn ? <LogoutButton /> : <LoginButton />}
+                    </ul>
                 </div>
             </ul>
         </div>

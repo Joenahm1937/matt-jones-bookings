@@ -1,7 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Libre_Franklin } from "next/font/google";
-import NavBar from "./NavBar";
 
 const font = Libre_Franklin({ weight: "400", subsets: [] });
 
@@ -20,7 +19,6 @@ export default function RootLayout({
             <body
                 className={`${font.className} flex h-screen flex-col overflow-y-scroll overscroll-none bg-[#f4eee6]`}
             >
-                <NavBar />
                 {children}
             </body>
         </html>
