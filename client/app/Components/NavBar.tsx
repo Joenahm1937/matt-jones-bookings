@@ -9,6 +9,7 @@ import {
     IMobileMenuProps,
 } from "../Interfaces";
 import { useLoading, useLogin } from "../template";
+import { LoginButton, LogoutButton } from "./LoginButtons";
 
 export default function NavBar() {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -37,8 +38,8 @@ export default function NavBar() {
                 className=" bg-white bg-opacity-90 py-1 shadow-md"
             >
                 <nav className="mx-auto flex w-11/12 items-center">
-                    <Image src="/logo.png" alt="logo" width={60} height={60} />
-                    <div className="mx-12 flex-grow whitespace-nowrap text-center text-xl xl:text-left">
+                    <Image src="/logo.png" alt="logo" width={50} height={50} />
+                    <div className="mx-10 flex-grow whitespace-nowrap text-center text-xl xl:text-left">
                         {WEBSITE_TITLE}
                     </div>
                     <DesktopMenu />
@@ -130,36 +131,6 @@ const MenuLinks = (props: IMenuLinksProps) => {
             </Link>
         </div>
     ));
-};
-
-const LoginButton = () => {
-    return (
-        <li>
-            <button
-                className="rounded-md bg-stone-500 px-8 py-2 text-lg font-medium text-white transition-colors duration-200 hover:text-black"
-                onClick={() => {
-                    console.log("Logging in");
-                }}
-            >
-                Login
-            </button>
-        </li>
-    );
-};
-
-const LogoutButton = () => {
-    return (
-        <li>
-            <button
-                className={`rounded-md bg-slate-500 px-6 py-2 text-lg font-medium text-white transition-colors duration-200 hover:text-black`}
-                onClick={() => {
-                    console.log("Logging out");
-                }}
-            >
-                Logout
-            </button>
-        </li>
-    );
 };
 
 const DesktopMenu = () => {

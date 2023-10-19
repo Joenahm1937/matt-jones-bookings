@@ -61,8 +61,10 @@ export default function Template({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const simulateLoading = async () => {
             setLoading(true);
-            const response = await fetch(`${SERVER_URL}/auth/isLoggedIn`);
+            // TODO: Don't fetch everytime
+            const response = await fetch(`${SERVER_URL}/auth/isLoggedIn`, { credentials: 'include' });
             const { loggedIn }: GetLoginStatusResponse = await response.json();
+            console.log("LOGIN STATUS:", loggedIn);
             setLoginStatus(loggedIn);
             setLoading(false);
         };

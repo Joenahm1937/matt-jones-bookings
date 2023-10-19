@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import Image from "next/image";
 import {
     NUM_CAROUSEL_IMAGES,
@@ -55,30 +56,12 @@ export default function Carousel() {
 
     return (
         <div className="relative flex h-screen items-center justify-center overflow-hidden">
-            <div
-                className={
-                    "absolute top-36 mx-auto flex w-full items-center justify-center text-center"
-                }
-            >
-                <span
-                    className={
-                        "mx-5 block h-0.5 w-[12vw] rounded-md bg-stone-500"
-                    }
-                ></span>
-                <h1 className="text-2xl text-white lg:text-3xl">Past Events</h1>
-                <span
-                    className={
-                        "mx-5 block h-0.5 w-[12vw] rounded-md bg-stone-500"
-                    }
-                ></span>
+            <div className="absolute top-36 mx-auto flex w-full items-center justify-center text-center">
+                <span className="mx-5 block h-0.5 w-[10vw] rounded-md bg-gray-600"></span>
+                <h1 className="text-2xl py-2">Past Events</h1>
+                <span className="mx-5 block h-0.5 w-[10vw] rounded-md bg-gray-600"></span>
             </div>
-            <button
-                onClick={handlePrevClick}
-                className="absolute left-16 top-[56%] z-30 flex h-10 w-10 -translate-y-1/2 transform items-center justify-center rounded-full bg-white font-bold text-black sm:left-32 "
-            >
-                &#8592;
-            </button>
-
+            <CarouselButton direction="left" onClick={handlePrevClick} />
             {CAROUSEL_PHOTOS.map((photo, idx) => (
                 <Card
                     key={idx}
@@ -95,15 +78,28 @@ export default function Carousel() {
                     showAdjacentImages={showAdjacentImages}
                 />
             ))}
-            <button
-                onClick={handleNextClick}
-                className="absolute right-16 top-[56%] z-30 flex h-10 w-10 -translate-y-1/2 transform items-center justify-center rounded-full bg-white font-bold text-black sm:right-32"
-            >
-                &#8594;
-            </button>
+            <CarouselButton direction="right" onClick={handleNextClick} />
         </div>
     );
 }
+
+interface CarouselButtonProps {
+    direction: "left" | "right";
+    onClick: () => void;
+}
+
+const CarouselButton = ({ direction, onClick }: CarouselButtonProps) => {
+    const baseStyles =
+      "absolute top-[50%] z-30 flex h-12 w-12 translate-y-1/2 transform items-center justify-center text-xl font-bold text-black transition-opacity hover:opacity-75";
+    const directionStyles = direction === "left" ? "left-8" : "right-8";
+    const IconComponent = direction === "left" ? FaChevronLeft : FaChevronRight;
+  
+    return (
+      <button onClick={onClick} className={`${baseStyles} ${directionStyles}`}>
+        <IconComponent size={24} /> {/* Adjust size as needed */}
+      </button>
+    );
+  };
 
 const Card = (props: ICardProps) => {
     const { photo, isActive, isLeft, isRight, showAdjacentImages } = props;

@@ -53,6 +53,7 @@ app.use(express.json());
 app.use(
     cors({
         origin: CLIENT_URL,
+        credentials: true,
     })
 );
 app.use(
