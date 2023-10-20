@@ -1,4 +1,5 @@
 import { SERVER_URL } from "../Constants";
+import { useLogin } from "../GlobalContext";
 
 export const LoginButton = () => {
     return (
@@ -20,12 +21,14 @@ export const LoginButton = () => {
 };
 
 export const LogoutButton = () => {
+    const { logout } = useLogin();
     return (
         <li>
             <button
                 className={`rounded-md bg-slate-500 px-6 py-2 text-lg font-medium text-white transition-colors duration-200 hover:text-black`}
                 onClick={() => {
                     console.log("Logging out");
+                    logout();
                 }}
             >
                 Logout

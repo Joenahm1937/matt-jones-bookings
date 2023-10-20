@@ -8,8 +8,9 @@ import {
     IMenuLinksProps,
     IMobileMenuProps,
 } from "../Interfaces";
-import { useLoading, useLogin } from "../template";
 import { LoginButton, LogoutButton } from "./LoginButtons";
+import { useLogin } from "../GlobalContext";
+import { useLoading } from "../template";
 
 export default function NavBar() {
     const headerRef = useRef<HTMLDivElement | null>(null);

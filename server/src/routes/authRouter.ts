@@ -22,7 +22,7 @@ router.get("/logout", (req, res) => {
             return res.status(500).send("Failed to logout");
         }
         res.clearCookie("connect.sid");
-        res.redirect(CLIENT_URL);
+        res.send("Cleared Session");
     });
 });
 

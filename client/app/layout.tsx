@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Libre_Franklin } from "next/font/google";
+import { GlobalProvider } from "./GlobalContext";
 
 const font = Libre_Franklin({ weight: "400", subsets: [] });
 
@@ -19,7 +20,9 @@ export default function RootLayout({
             <body
                 className={`${font.className} flex h-screen flex-col overflow-y-scroll overscroll-none bg-[#f4eee6]`}
             >
-                {children}
+                <GlobalProvider>
+                    {children}
+                </GlobalProvider>
             </body>
         </html>
     );
