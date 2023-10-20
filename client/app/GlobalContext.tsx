@@ -5,6 +5,7 @@ import { GetLoginStatusResponse } from "@backendTypes/index";
 
 type LoginContextType = {
     isLoggedIn: boolean;
+    login: () => void;
     logout: () => void;
 };
 
@@ -15,17 +16,23 @@ interface IGlobalProvider {
 }
 
 export const GlobalProvider = ({ children }: IGlobalProvider) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Initial state can be fetched from local storage or cookies
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    const login = async () => {
+        setTimeout(() => {
+            window.location.href = `${SERVER_URL}/auth/login`;
+        }, 500);
+    };
 
     const logout = async () => {
         await fetch(`${SERVER_URL}/auth/logout`, {
             credentials: "include",
         });
-        setIsLoggedIn(false);
+        setTimeout(() => setIsLoggedIn(false), 1000);
     };
 
     useEffect(() => {
-        const simulateLoading = async () => {
+        const syncLoginStatus = async () => {
             const response = await fetch(`${SERVER_URL}/auth/isLoggedIn`, {
                 credentials: "include",
             });
@@ -33,11 +40,11 @@ export const GlobalProvider = ({ children }: IGlobalProvider) => {
             setIsLoggedIn(loggedIn);
         };
 
-        simulateLoading();
+        syncLoginStatus();
     }, []);
 
     return (
-        <LoginContext.Provider value={{ isLoggedIn, logout }}>
+        <LoginContext.Provider value={{ isLoggedIn, login, logout }}>
             {children}
         </LoginContext.Provider>
     );

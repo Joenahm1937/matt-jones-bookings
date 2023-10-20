@@ -1,20 +1,29 @@
-import { SERVER_URL } from "../Constants";
+import { useState } from "react";
 import { useLogin } from "../GlobalContext";
 
 export const LoginButton = () => {
+    const { login } = useLogin();
+    const [loginText, setLoginText] = useState("Login");
+    const [buttonClicked, triggerButtonClicked] = useState(false);
+
+    const handleClick = () => {
+        triggerButtonClicked(true);
+
+        // Wait for the width animation to complete, then change the text and call login
+        setTimeout(() => {
+            setLoginText("Logging in...");
+            login();
+        }, 200); // Delay for 500ms (duration of animation)
+    };
+
     return (
         <li>
             <button
-                className="rounded-md bg-stone-500 px-8 py-2 text-lg font-medium text-white transition-colors duration-200 hover:text-black"
-                onClick={async () => {
-                    try {
-                        window.location.href = `${SERVER_URL}/auth/login`;
-                    } catch (error) {
-                        console.error("There was an error:", error);
-                    }
-                }}
+                className={`transition-width rounded-md bg-stone-500 px-8 py-2 text-lg font-medium text-white duration-500
+                    ${buttonClicked ? "w-44" : "w-32"}`}
+                onClick={handleClick}
             >
-                Login
+                {loginText}
             </button>
         </li>
     );
@@ -22,16 +31,26 @@ export const LoginButton = () => {
 
 export const LogoutButton = () => {
     const { logout } = useLogin();
+    const [logoutText, setLogoutText] = useState("Logout");
+    const [buttonClicked, triggerButtonClicked] = useState(false);
+
+    const handleClick = () => {
+        triggerButtonClicked(true);
+
+        setTimeout(() => {
+            setLogoutText("Logging out...");
+            logout();
+        }, 200);
+    };
+
     return (
         <li>
             <button
-                className={`rounded-md bg-slate-500 px-6 py-2 text-lg font-medium text-white transition-colors duration-200 hover:text-black`}
-                onClick={() => {
-                    console.log("Logging out");
-                    logout();
-                }}
+                className={`transition-width rounded-md bg-slate-500 px-6 py-2 text-lg font-medium text-white duration-500
+                    ${buttonClicked ? "w-44" : "w-32"}`}
+                onClick={handleClick}
             >
-                Logout
+                {logoutText}
             </button>
         </li>
     );
