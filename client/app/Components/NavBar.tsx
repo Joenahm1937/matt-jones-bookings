@@ -39,10 +39,17 @@ export default function NavBar() {
                 className=" bg-white bg-opacity-90 py-1 shadow-md"
             >
                 <nav className="mx-auto flex w-11/12 items-center">
-                    <Image src="/logo.png" alt="logo" width={50} height={50} />
-                    <div className="mx-10 flex-grow whitespace-nowrap text-center text-xl xl:text-left">
-                        {WEBSITE_TITLE}
-                    </div>
+                    <Link href="/" className="flex flex-grow items-center">
+                        <Image
+                            src="/logo.png"
+                            alt="logo"
+                            width={50}
+                            height={50}
+                        />
+                        <div className="mx-10 flex-grow text-center hitespace-nowrap text-xl xl:text-left">
+                            {WEBSITE_TITLE}
+                        </div>
+                    </Link>
                     <DesktopMenu />
                     <HamburgerIcon
                         isMenuOpen={isMenuOpen}

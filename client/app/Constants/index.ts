@@ -1,5 +1,7 @@
 import { IPhoto } from "../Interfaces";
 
+export const HOME_HEADER = "Matt's Bookings";
+export const HOME_SUBHEADER = "You take care of each other, and I'll take care of the rest"
 export const WEBSITE_TITLE = "Matt's Bookings";
 export const NUM_CAROUSEL_IMAGES = 5;
 export const CAROUSEL_INTERVAL_SECONDS = 5;
