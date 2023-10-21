@@ -1,5 +1,12 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+    Dispatch,
+    SetStateAction,
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 import { SERVER_URL } from "./Constants";
 import { GetLoginStatusResponse } from "@backendTypes/index";
 
@@ -9,7 +16,13 @@ type LoginContextType = {
     logout: () => void;
 };
 
+type StylesContextType = {
+    navHeight: string;
+    setNavHeight: Dispatch<SetStateAction<string>>;
+};
+
 const LoginContext = createContext<LoginContextType | undefined>(undefined);
+const StylesContext = createContext<StylesContextType | undefined>(undefined);
 
 interface IGlobalProvider {
     children: any;
@@ -17,6 +30,7 @@ interface IGlobalProvider {
 
 export const GlobalProvider = ({ children }: IGlobalProvider) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [navHeight, setNavHeight] = useState("0");
 
     const login = async () => {
         setTimeout(() => {
@@ -45,7 +59,9 @@ export const GlobalProvider = ({ children }: IGlobalProvider) => {
 
     return (
         <LoginContext.Provider value={{ isLoggedIn, login, logout }}>
-            {children}
+            <StylesContext.Provider value={{ navHeight, setNavHeight }}>
+                {children}
+            </StylesContext.Provider>
         </LoginContext.Provider>
     );
 };
@@ -55,6 +71,16 @@ export function useLogin() {
     if (!context) {
         throw new Error(
             "useLogin must be used within a Login Context Provider",
+        );
+    }
+    return context;
+}
+
+export function useGlobalStyles() {
+    const context = useContext(StylesContext);
+    if (!context) {
+        throw new Error(
+            "useGlobalStyles must be used within a Styles Context Provider",
         );
     }
     return context;

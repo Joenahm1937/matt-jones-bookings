@@ -9,20 +9,20 @@ import {
     IMobileMenuProps,
 } from "../Interfaces";
 import { LoginButton, LogoutButton } from "./LoginButtons";
-import { useLogin } from "../GlobalContext";
+import { useGlobalStyles, useLogin } from "../GlobalContext";
 import { useLoading } from "../template";
 
 export default function NavBar() {
     const headerRef = useRef<HTMLDivElement | null>(null);
     const [isMenuOpen, setMenuOpen] = useState(false);
-    const [headerHeight, setHeaderHeight] = useState("0");
+    const { navHeight, setNavHeight } = useGlobalStyles();
 
     const toggleMobileMenu = () => setMenuOpen((prevState) => !prevState);
     const hideMobileMenu = () => setMenuOpen(false);
 
     useEffect(() => {
         if (headerRef.current) {
-            setHeaderHeight(`${headerRef.current.offsetHeight}px`);
+            setNavHeight(`${headerRef.current.offsetHeight}px`);
         }
 
         const mediaQuery = window.matchMedia("(min-width: 1280px)"); // Tailwind's xl breakpoint
@@ -46,7 +46,7 @@ export default function NavBar() {
                             width={50}
                             height={50}
                         />
-                        <div className="mx-10 flex-grow text-center hitespace-nowrap text-xl xl:text-left">
+                        <div className="hitespace-nowrap mx-10 flex-grow text-center text-xl xl:text-left">
                             {WEBSITE_TITLE}
                         </div>
                     </Link>
@@ -60,7 +60,7 @@ export default function NavBar() {
             <MobileMenu
                 isMenuOpen={isMenuOpen}
                 hideMobileMenu={hideMobileMenu}
-                topValue={headerHeight}
+                topValue={navHeight}
             />
         </div>
     );

@@ -6,8 +6,8 @@ import {
 } from "react-icons/fa";
 
 export const Footer = () => (
-    <footer className="mt-auto w-full bg-white bg-opacity-90 py-3 shadow-md">
-        <div className="flex justify-center space-x-10">
+    <footer className="mt-auto w-full bg-white bg-opacity-90 md:py-2 py-4 shadow-md">
+        <div className="flex justify-center space-x-16">
             <a
                 href="https://twitter.com/yourusername"
                 target="_blank"
@@ -37,7 +37,6 @@ export const Footer = () => (
                 className="flex items-center space-x-4 text-stone-500 transition-colors duration-300 hover:text-stone-700"
             >
                 <FaEnvelope size={24} />
-                <span>Contact me</span>
             </a>
         </div>
     </footer>
