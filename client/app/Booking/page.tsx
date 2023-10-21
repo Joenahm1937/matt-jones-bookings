@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Calendar } from "./Components/Calendar";
 import { useLoading } from "../template";
 import { useGlobalStyles } from "../GlobalContext";
@@ -10,6 +10,7 @@ export default function Booking() {
     const [showDesktopView, setShowDesktopView] = useState(false);
     const { loading } = useLoading();
     const { navHeight } = useGlobalStyles();
+    const formRef = useRef<HTMLDivElement>(null);
 
     const handleMediaChange = (e: MediaQueryListEvent) => {
         setShowDesktopView(e.matches);
@@ -27,33 +28,49 @@ export default function Booking() {
         };
     }, [loading]);
 
+    useEffect(() => {
+        if (showForm && !showDesktopView && formRef.current) {
+            formRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [showForm, showDesktopView]);
+
     return (
         <div
-            className={`flex h-screen w-full items-center justify-center transition-opacity delay-200 duration-500 ease-in ${
+            className={`flex ${
+                !showDesktopView && "flex-col"
+            } w-full transition-opacity delay-200 duration-500 ease-in ${
                 pageVisible ? "opacity-100" : "opacity-0"
             }`}
         >
-            <div className="flex h-full flex-grow flex-col items-center justify-center gap-10">
+            <div className="flex h-screen flex-grow flex-col items-center justify-center gap-10">
                 <Calendar
                     showForm={showForm}
                     setShowForm={setShowForm}
                     showDesktopView={showDesktopView}
                 />
             </div>
-            {showForm && showDesktopView && (
-                <div className="h-full w-1/2">
-                    <div
-                        className={`h-full w-full bg-red-500 transition-all duration-300 pt-[${navHeight}]`}
-                    >
-                        <ReserveForm />
-                    </div>
+
+            <div
+                ref={formRef}
+                className={
+                    showForm
+                        ? `${
+                              showDesktopView
+                                  ? "transition-width w-1/2 overflow-hidden duration-700 ease-in-out"
+                                  : "w-full"
+                          }`
+                        : "w-0"
+                }
+            >
+                <div className={`h-full w-full bg-yellow-500`}>
+                    <ReserveForm />
                 </div>
-            )}
+            </div>
         </div>
     );
 }
 
 // ReserveForm.js
 function ReserveForm() {
-    return <div className="h-full w-full bg-yellow-500"></div>;
+    return <div className="h-screen w-full bg-red-500"></div>;
 }
