@@ -21,13 +21,9 @@ const conveyUserSelection = (range: DateRange | undefined): IUserSelection => {
         userSelection.formattedDates = `${format(from, "PPP")}`;
         userSelection.formattedDateCount = "Single Day Event";
     } else if (from && to) {
-        userSelection.formattedDates = `${format(from, "PPP")} - ${format(
-            to,
-            "PPP",
-        )}`;
-        userSelection.formattedDateCount = `${
-            to.getDate() - from.getDate() + 1
-        } day event`;
+        const dayDifference = Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        userSelection.formattedDates = `${format(from, "PPP")} - ${format(to, "PPP")}`;
+        userSelection.formattedDateCount = `${dayDifference} day event`;
     }
 
     return userSelection;

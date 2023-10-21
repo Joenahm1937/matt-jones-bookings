@@ -1,26 +1,29 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
     DateRange,
     DayPicker,
     SelectRangeEventHandler,
 } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import "./day-picker.css";
 import { conveyUserSelection, transformEvents } from "../utils";
 import { IEventDates, IUserSelection } from "../Interfaces";
 import { SERVER_URL } from "../../Constants";
 import type { GetAllEventsResponse } from "@backendTypes/index";
 
-export default function Booking() {
+interface IBookingProps {
+    showForm: boolean;
+    setShowForm: Dispatch<SetStateAction<boolean>>;
+    showDesktopView: boolean;
+}
+
+export const Calendar = (props: IBookingProps) => {
+    const { showForm, setShowForm, showDesktopView } = props;
     const [range, setRange] = useState<DateRange | undefined>();
     const [eventDates, setEventDates] = useState<IEventDates>({
         acceptedDates: [],
         pendingDates: [],
     });
-    const [showDesktopView, setShowDesktopView] = useState(
-        window.matchMedia("(min-width: 1280px)").matches,
-    );
 
     const handleRangeSelection: SelectRangeEventHandler = (
         selectedRange: DateRange | undefined,
@@ -40,12 +43,9 @@ export default function Booking() {
         }
     };
 
-    const handleMediaChange = (e: MediaQueryListEvent) => {
-        setShowDesktopView(e.matches);
-    };
-
     const handleClickReserve = () => {
-        console.log(range);
+        // console.log(range);
+        setShowForm(true);
     };
 
     const fetchBusyDays = async () => {
@@ -61,18 +61,16 @@ export default function Booking() {
 
     useEffect(() => {
         fetchBusyDays();
-        const mediaQuery = window.matchMedia("(min-width: 1024px)"); // Tailwind's xl breakpoint
-        mediaQuery.addEventListener("change", handleMediaChange);
-
-        return () => {
-            mediaQuery.removeEventListener("change", handleMediaChange);
-        };
     }, []);
 
     const currentDate = new Date();
     const userSelection: IUserSelection = conveyUserSelection(range);
-
-    const isDisabled = !range?.from || !range?.to;
+    const isDisabled = showForm || !range?.from || !range?.to;
+    const css = `
+        .rdp {
+            --rdp-cell-size: ${showDesktopView ? "4rem" : "3rem"};
+        }
+    `;
 
     return (
         <>
@@ -88,20 +86,23 @@ export default function Booking() {
                     </div>
                 </div>
             </div>
-            <div className="flex h-1/2 w-full items-center justify-center">
-                <DayPicker
-                    mode="range"
-                    selected={range}
-                    disabled={eventDates.acceptedDates}
-                    onSelect={handleRangeSelection}
-                    captionLayout="dropdown-buttons"
-                    max={6}
-                    numberOfMonths={showDesktopView ? 2 : 1}
-                    pagedNavigation
-                    defaultMonth={currentDate}
-                    fromDate={currentDate}
-                    toYear={currentDate.getFullYear() + 1}
-                />
+            <div className="flex h-1/2 items-center justify-center">
+                <>
+                    <style>{css}</style>
+                    <DayPicker
+                        mode="range"
+                        selected={range}
+                        disabled={eventDates.acceptedDates}
+                        onSelect={handleRangeSelection}
+                        captionLayout="dropdown-buttons"
+                        max={6}
+                        numberOfMonths={showDesktopView && !showForm ? 2 : 1}
+                        pagedNavigation
+                        defaultMonth={currentDate}
+                        fromDate={currentDate}
+                        toYear={currentDate.getFullYear() + 1}
+                    />
+                </>
             </div>
             <button
                 className={`h-14 w-56 transform rounded-lg px-4 py-2 shadow-md transition-all duration-200 hover:bg-black hover:text-white focus:outline-none ${
@@ -116,4 +117,4 @@ export default function Booking() {
             </button>
         </>
     );
-}
+};
