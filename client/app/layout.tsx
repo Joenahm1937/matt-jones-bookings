@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" className={`${font.className}`}>
-            <body className="bg-[#f4eee6]">
+            <body className="overflow-hidden bg-[#f4eee6]">
                 <GlobalProvider>{children}</GlobalProvider>
             </body>
         </html>

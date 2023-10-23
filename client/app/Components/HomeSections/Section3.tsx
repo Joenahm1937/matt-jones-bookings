@@ -21,7 +21,7 @@ export default function Section3(props: ISectionProps) {
             contentRef.current,
             {
                 autoAlpha: 0,
-                y: -20,
+                y: -40,
             },
             {
                 y: 0,

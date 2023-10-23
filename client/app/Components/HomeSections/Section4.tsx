@@ -14,7 +14,7 @@ export default function Section4() {
             contentRef.current,
             {
                 autoAlpha: 0,
-                y: -20,
+                y: 60,
             },
             {
                 y: 0,

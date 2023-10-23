@@ -7,17 +7,16 @@ import {
 } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { conveyUserSelection, transformEvents } from "../utils";
-import { IEventDates, IUserSelection } from "../Interfaces";
+import {
+    IEventDates,
+    IUserSelection,
+    ICalendarProps,
+    ICalendarHeaderProps,
+} from "../Interfaces";
 import { SERVER_URL } from "../../Constants";
 import type { GetAllEventsResponse } from "@backendTypes/index";
 
-interface IBookingProps {
-    showForm: boolean;
-    setShowForm: Dispatch<SetStateAction<boolean>>;
-    showDesktopView: boolean;
-}
-
-export const Calendar = (props: IBookingProps) => {
+export const Calendar = (props: ICalendarProps) => {
     const { showForm, setShowForm, showDesktopView } = props;
     const [range, setRange] = useState<DateRange | undefined>();
     const [eventDates, setEventDates] = useState<IEventDates>({
@@ -41,6 +40,7 @@ export const Calendar = (props: IBookingProps) => {
         } else {
             setRange(selectedRange);
         }
+        setShowForm(false);
     };
 
     const handleClickReserve = () => {
@@ -75,16 +75,10 @@ export const Calendar = (props: IBookingProps) => {
     return (
         <>
             <div className="flex w-full justify-center">
-                <div className="flex w-9/12 flex-col items-start md:w-3/5 lg:pl-20 xl:w-1/2">
-                    <div>
-                        <h1 className="text-md md:text-xl lg:text-2xl">
-                            {userSelection.formattedDates}
-                        </h1>
-                        <p className="md:text-md text-sm italic lg:text-lg">
-                            {userSelection.formattedDateCount}
-                        </p>
-                    </div>
-                </div>
+                <CalendarHeader
+                    showForm={showForm}
+                    userSelection={userSelection}
+                />
             </div>
             <div className="flex h-1/2 items-center justify-center">
                 <>
@@ -116,5 +110,26 @@ export const Calendar = (props: IBookingProps) => {
                 Reserve
             </button>
         </>
+    );
+};
+
+const CalendarHeader = (props: ICalendarHeaderProps) => {
+    const { showForm, userSelection } = props;
+    return (
+        // <div className="flex w-9/12 flex-col items-start md:w-3/5 lg:pl-20 xl:w-1/2">
+        <div className="w-full ml-[12%] sm:ml-[28%]">
+            <div>
+                <h1
+                    className={`text-md ${
+                        showForm ? "text-md" : "lg:text-2xl"
+                    }`}
+                >
+                    {userSelection.formattedDates}
+                </h1>
+                <p className="md:text-md text-sm italic lg:text-lg">
+                    {userSelection.formattedDateCount}
+                </p>
+            </div>
+        </div>
     );
 };
