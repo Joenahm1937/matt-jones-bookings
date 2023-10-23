@@ -1,29 +1,84 @@
-import Image from "next/image";
-import { ISection3Props } from "../../Interfaces";
-import { useGlobalStyles } from "../../GlobalContext";
+import { RefObject, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+import { FaChevronDown } from "react-icons/fa";
 
-export const Section3: React.FC<ISection3Props> = ({ reference, isVisible }) => {
-    const classes = isVisible ? "opacity-100" : "opacity-0";
-    const { navHeight } = useGlobalStyles();
+gsap.registerPlugin(ScrollTrigger);
+
+interface ISectionProps {
+    scrollTo?: (section: RefObject<HTMLDivElement>) => void;
+    goToSectionRef?: RefObject<HTMLDivElement>;
+}
+
+export default function Section3(props: ISectionProps) {
+    const { scrollTo, goToSectionRef } = props;
+    const contentRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Animation for text content
+        gsap.fromTo(
+            contentRef.current,
+            {
+                autoAlpha: 0,
+                y: -20,
+            },
+            {
+                y: 0,
+                autoAlpha: 1,
+                duration: 2,
+                scrollTrigger: {
+                    once: true,
+                    scroller: ".home-section-container",
+                    trigger: contentRef.current,
+                    start: "top 100%",
+                    end: "bottom 0%",
+                    toggleActions: "play none restart reverse",
+                },
+            },
+        );
+
+        // Animation for background image
+        gsap.fromTo(
+            imageRef.current,
+            {
+                autoAlpha: 0, // Start with an opacity of 0
+            },
+            {
+                autoAlpha: 1, // Animate to an opacity of 1
+                duration: 0.4,
+                scrollTrigger: {
+                    once: true,
+                    scroller: ".home-section-container",
+                    trigger: contentRef.current,
+                    start: "top 100%",
+                    end: "bottom 0%",
+                    toggleActions: "play none restart reverse",
+                },
+            },
+        );
+    }, []);
 
     return (
-        <div
-            className={`flex h-screen flex-col items-center justify-center transition-opacity delay-300 duration-500 ease-in ${classes}`}
-            ref={reference}
-        >
-            <div className={`flex flex-col md:flex-row w-full flex-1 items-center justify-center pt-[${navHeight}]`}>
-                <div className="relative w-full md:w-3/5 h-1/2 md:h-full bg-black mb-4 md:mb-0">
-                    <Image
-                        priority
-                        src="/carousel/wedding-photo-0.jpg"
-                        alt="Section 2 Image"
-                        fill
-                        sizes="(max-width: 768px) 100vw"
-                        className="object-cover"
-                    />
-                </div>
-                <div className="w-full md:w-auto flex-grow">Section 3 Content</div>
+        <div className="home-section relative flex h-screen w-full flex-col items-center justify-center md:flex-row">
+            <div
+                ref={imageRef}
+                className={`bg-image h-full w-full md:w-1/3 bg-cover bg-center bg-no-repeat transition-opacity duration-500 ease-in`}
+                style={{ backgroundImage: `url('/wedding-photo-2.jpg')` }}
+            ></div>
+            <div ref={contentRef} className="content flex-grow min-h-[40%]">
+                <h2 className="relative z-10 text-center text-[5rem] font-bold text-white">
+                    Lorem Ipsum
+                </h2>
             </div>
+            {scrollTo && goToSectionRef && (
+                <button
+                    onClick={() => scrollTo(goToSectionRef)}
+                    className="absolute bottom-10 m-auto text-3xl"
+                >
+                    <FaChevronDown size={24} />
+                </button>
+            )}
         </div>
     );
-};
+}

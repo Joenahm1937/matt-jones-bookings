@@ -1,38 +1,47 @@
-import Image from "next/image";
-import { ISection4Props } from "../../Interfaces";
-import { useGlobalStyles } from "../../GlobalContext";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { Footer } from "../Footer";
 
-export const Section4: React.FC<ISection4Props> = ({
-    reference,
-    isVisible,
-}) => {
-    const classes = isVisible ? "opacity-100" : "opacity-0";
-    const { navHeight } = useGlobalStyles();
+gsap.registerPlugin(ScrollTrigger);
+
+export default function Section4() {
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Animation for text content
+        gsap.fromTo(
+            contentRef.current,
+            {
+                autoAlpha: 0,
+                y: -20,
+            },
+            {
+                y: 0,
+                autoAlpha: 1,
+                duration: 2,
+                scrollTrigger: {
+                    once: true,
+                    scroller: ".home-section-container",
+                    trigger: contentRef.current,
+                    start: "top 60%",
+                    end: "bottom 0",
+                    toggleActions: "play none none none",
+                },
+            },
+        );
+    }, []);
 
     return (
-        <div
-            className={`flex h-screen flex-col items-center justify-center transition-opacity delay-300 duration-500 ease-in ${classes}`}
-            ref={reference}
-        >
-            <div
-                className={`flex w-full flex-1 flex-col items-center justify-center md:flex-row pt-[${navHeight}]`}
-            >
-                <div className="w-full flex-grow md:w-auto">
-                    Section 4 Content
-                </div>
-                <div className="relative h-1/2 w-full bg-black md:mb-0 md:h-full md:w-3/5">
-                    <Image
-                        priority
-                        src="/carousel/wedding-photo-1.jpg"
-                        alt="Section 2 Image"
-                        fill
-                        sizes="(max-width: 768px) 100vw"
-                        className="object-cover"
-                    />
+        <div className="home-section relative flex h-screen w-full flex-col">
+            <div className="flex h-screen w-full items-center justify-center">
+                <div ref={contentRef} className="flex-grow ">
+                    <h2 className="relative z-10 text-center text-[5rem] font-bold text-white">
+                        Lorem Ipsum
+                    </h2>
                 </div>
             </div>
             <Footer />
         </div>
     );
-};
+}

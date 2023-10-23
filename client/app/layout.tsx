@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" className={`${font.className}`}>
-            <body className="flex h-screen flex-col overflow-y-scroll overscroll-none bg-[#f4eee6]">
+            <body className="bg-[#f4eee6]">
                 <GlobalProvider>{children}</GlobalProvider>
             </body>
         </html>

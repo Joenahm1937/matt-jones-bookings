@@ -1,14 +1,5 @@
 import { RefObject } from "react";
 
-export interface IBackgroundImageProps {
-    isVisible: boolean;
-}
-
-export interface IContentOverlayProps {
-    isVisible: boolean;
-    isLoggedIn: boolean;
-}
-
 export interface IScrollSectionProps {
     onVisible: () => void;
     children: React.ReactNode;
