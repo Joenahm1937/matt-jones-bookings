@@ -3,8 +3,10 @@ import { DateRange } from "react-day-picker";
 import { IEventDates, IUserSelection } from "./Interfaces";
 import type {
     GetAllEventsResponse,
+    InsertEventRequest,
     ScrubbedEventData,
 } from "@backendTypes/index";
+import { SERVER_URL } from "../Constants";
 
 const conveyUserSelection = (range: DateRange | undefined): IUserSelection => {
     const { from, to } = range || {};
@@ -21,8 +23,14 @@ const conveyUserSelection = (range: DateRange | undefined): IUserSelection => {
         userSelection.formattedDates = `${format(from, "PPP")}`;
         userSelection.formattedDateCount = "Single Day Event";
     } else if (from && to) {
-        const dayDifference = Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        userSelection.formattedDates = `${format(from, "PPP")} - ${format(to, "PPP")}`;
+        const dayDifference =
+            Math.floor(
+                (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24),
+            ) + 1;
+        userSelection.formattedDates = `${format(from, "PPP")} - ${format(
+            to,
+            "PPP",
+        )}`;
         userSelection.formattedDateCount = `${dayDifference} day event`;
     }
 
@@ -56,6 +64,29 @@ export const transformEvents = (
         ]),
         pendingDates: extractDatesFromRange(eventsResponse.needsAction),
     };
+};
+
+export const insertEvent = async (eventRequest: InsertEventRequest) => {
+    try {
+        const response = await fetch(`${SERVER_URL}/protected/insertEvent`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(eventRequest),
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                "Network response was not ok " + response.statusText,
+            );
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
 };
 
 export { conveyUserSelection };

@@ -1,8 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
-import { DateRange } from "react-day-picker";
+import { DateRange, SelectRangeEventHandler } from "react-day-picker";
 
 export interface IFormProps {
     onBack: () => void;
+    range?: DateRange;
     showForm: boolean;
 }
 
@@ -10,6 +11,8 @@ export interface ICalendarProps {
     showForm: boolean;
     setShowForm: Dispatch<SetStateAction<boolean>>;
     showDesktopView: boolean;
+    range?: DateRange;
+    handleRangeSelection: SelectRangeEventHandler;
 }
 
 export interface IUserSelection {

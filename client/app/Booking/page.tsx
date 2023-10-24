@@ -1,31 +1,63 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { Calendar } from "./Components/Calendar";
 import { Form } from "./Components/Form";
 import { useLoading } from "../template";
+import classNames from "classnames";
+import { DateRange, SelectRangeEventHandler } from "react-day-picker";
 
 export default function Booking() {
-    const [pageVisible, setPageVisible] = useState(false);
-    const [showForm, setShowForm] = useState(false);
-    const [showDesktopView, setShowDesktopView] = useState(false);
+    const MIN_WIDTH_DESKTOP = "1280px";
+    const MIN_WIDTH_LARGE_SCREEN = "1024px";
+
+    const [isPageVisible, setPageVisible] = useState(false);
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [isDesktopView, setIsDesktopView] = useState(false);
+    const [range, setRange] = useState<DateRange | undefined>();
+
     const { loading } = useLoading();
     const formRef = useRef<HTMLDivElement>(null);
 
+    const handleRangeSelection: SelectRangeEventHandler = (
+        selectedRange: DateRange | undefined,
+    ) => {
+        if (
+            selectedRange?.to &&
+            selectedRange?.from &&
+            selectedRange?.to < selectedRange?.from
+        ) {
+            const orderedRange: DateRange = {
+                from: selectedRange?.to,
+                to: selectedRange?.from,
+            };
+            setRange(orderedRange);
+        } else {
+            setRange(selectedRange);
+        }
+        setIsFormVisible(false);
+    };
+
     const handleBack = () => {
         window.scrollTo(0, 0);
-        setShowForm(false);
+        setIsFormVisible(false);
     };
 
     const handleMediaChange = (e: MediaQueryListEvent) => {
-        setShowDesktopView(e.matches);
+        setIsDesktopView(e.matches);
     };
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        const isDesktop = window.matchMedia("(min-width: 1280px)").matches;
-        setShowDesktopView(isDesktop);
+        const isDesktop = window.matchMedia(
+            `(min-width: ${MIN_WIDTH_DESKTOP})`,
+        ).matches;
+        setIsDesktopView(isDesktop);
         setPageVisible(true);
-        const mediaQuery = window.matchMedia("(min-width: 1024px)"); // Tailwind's xl breakpoint
+
+        const mediaQuery = window.matchMedia(
+            `(min-width: ${MIN_WIDTH_LARGE_SCREEN})`,
+        );
         mediaQuery.addEventListener("change", handleMediaChange);
 
         return () => {
@@ -34,42 +66,45 @@ export default function Booking() {
     }, [loading]);
 
     useEffect(() => {
-        if (showForm && !showDesktopView && formRef.current) {
+        if (isFormVisible && !isDesktopView && formRef.current) {
             formRef.current.scrollIntoView({ behavior: "smooth" });
         }
-    }, [showForm, showDesktopView]);
+    }, [isFormVisible, isDesktopView]);
 
     return (
         <div
-            className={`flex ${
-                !showDesktopView && "flex-col"
-            } w-full transition-opacity delay-200 duration-500 ease-in ${
-                pageVisible ? "opacity-100" : "opacity-0"
-            }`}
+            className={classNames(
+                "flex w-full transition-opacity delay-200 duration-500 ease-in",
+                {
+                    "flex-col": !isDesktopView,
+                    "opacity-100": isPageVisible,
+                    "opacity-0": !isPageVisible,
+                },
+            )}
         >
             <div className="flex h-screen flex-grow flex-col items-center justify-center gap-10">
                 <Calendar
-                    showForm={showForm}
-                    setShowForm={setShowForm}
-                    showDesktopView={showDesktopView}
+                    range={range}
+                    handleRangeSelection={handleRangeSelection}
+                    showForm={isFormVisible}
+                    setShowForm={setIsFormVisible}
+                    showDesktopView={isDesktopView}
                 />
             </div>
 
             <div
                 ref={formRef}
-                className={
-                    showForm
-                        ? `relative h-full shadow-md ${
-                              showDesktopView
-                                  ? "transition-width w-1/2 overflow-hidden duration-700 ease-in-out"
-                                  : "w-full"
-                          }`
-                        : "w-0"
-                }
+                className={classNames({
+                    "relative h-full shadow-md": isFormVisible,
+                    "transition-width w-1/2 overflow-hidden duration-700 ease-in-out":
+                        isFormVisible && isDesktopView,
+                    "w-full": isFormVisible && !isDesktopView,
+                    "w-0": !isFormVisible,
+                })}
                 style={{ boxShadow: "-4px 0 6px -2px rgba(0, 0, 0, 0.1)" }}
             >
                 <div className="h-full w-full">
-                    <Form onBack={handleBack} showForm={showForm} />
+                    <Form onBack={handleBack} showForm={isFormVisible} range={range}/>
                 </div>
             </div>
         </div>

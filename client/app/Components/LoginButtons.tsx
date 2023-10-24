@@ -17,15 +17,13 @@ export const LoginButton = () => {
     };
 
     return (
-        <li>
-            <button
-                className={`transition-width rounded-md bg-stone-500 px-8 py-2 text-lg font-medium text-white duration-500
+        <button
+            className={`transition-width rounded-md bg-stone-500 px-8 py-2 text-lg font-medium text-white duration-500
                     ${buttonClicked ? "w-44" : "w-32"}`}
-                onClick={handleClick}
-            >
-                {loginText}
-            </button>
-        </li>
+            onClick={handleClick}
+        >
+            {loginText}
+        </button>
     );
 };
 

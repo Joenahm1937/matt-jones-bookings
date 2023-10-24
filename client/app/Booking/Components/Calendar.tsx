@@ -1,10 +1,6 @@
 "use client";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {
-    DateRange,
-    DayPicker,
-    SelectRangeEventHandler,
-} from "react-day-picker";
+import { useEffect, useState } from "react";
+import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { conveyUserSelection, transformEvents } from "../utils";
 import {
@@ -15,38 +11,24 @@ import {
 } from "../Interfaces";
 import { SERVER_URL } from "../../Constants";
 import type { GetAllEventsResponse } from "@backendTypes/index";
+import { useLogin } from "../../GlobalContext";
+import { LoginButton } from "../../Components/LoginButtons";
 
 export const Calendar = (props: ICalendarProps) => {
-    const { showForm, setShowForm, showDesktopView } = props;
-    const [range, setRange] = useState<DateRange | undefined>();
+    const {
+        range,
+        handleRangeSelection,
+        showForm,
+        setShowForm,
+        showDesktopView,
+    } = props;
+
     const [eventDates, setEventDates] = useState<IEventDates>({
         acceptedDates: [],
         pendingDates: [],
     });
 
-    const handleRangeSelection: SelectRangeEventHandler = (
-        selectedRange: DateRange | undefined,
-    ) => {
-        if (
-            selectedRange?.to &&
-            selectedRange?.from &&
-            selectedRange?.to < selectedRange?.from
-        ) {
-            const orderedRange: DateRange = {
-                from: selectedRange?.to,
-                to: selectedRange?.from,
-            };
-            setRange(orderedRange);
-        } else {
-            setRange(selectedRange);
-        }
-        setShowForm(false);
-    };
-
-    const handleClickReserve = () => {
-        // console.log(range);
-        setShowForm(true);
-    };
+    const { isLoggedIn } = useLogin();
 
     const fetchBusyDays = async () => {
         try {
@@ -98,17 +80,21 @@ export const Calendar = (props: ICalendarProps) => {
                     />
                 </>
             </div>
-            <button
-                className={`h-14 w-56 transform rounded-lg px-4 py-2 shadow-md transition-all duration-200 hover:bg-black hover:text-white focus:outline-none ${
-                    isDisabled
-                        ? "scale-75 bg-gray-300 opacity-60"
-                        : "bg-white text-black"
-                }`}
-                disabled={isDisabled}
-                onClick={handleClickReserve}
-            >
-                Reserve
-            </button>
+            {isLoggedIn ? (
+                <button
+                    className={`h-14 w-56 transform rounded-lg px-4 py-2 shadow-md transition-all duration-200 hover:bg-black hover:text-white focus:outline-none ${
+                        isDisabled
+                            ? "scale-75 bg-gray-300 opacity-60"
+                            : "bg-white text-black"
+                    }`}
+                    disabled={isDisabled}
+                    onClick={() => setShowForm(true)}
+                >
+                    Reserve
+                </button>
+            ) : (
+                <LoginButton />
+            )}
         </>
     );
 };
@@ -116,8 +102,7 @@ export const Calendar = (props: ICalendarProps) => {
 const CalendarHeader = (props: ICalendarHeaderProps) => {
     const { showForm, userSelection } = props;
     return (
-        // <div className="flex w-9/12 flex-col items-start md:w-3/5 lg:pl-20 xl:w-1/2">
-        <div className="w-full ml-[12%] sm:ml-[28%]">
+        <div className="ml-[8%] w-full sm:ml-[28%]">
             <div>
                 <h1
                     className={`text-md ${

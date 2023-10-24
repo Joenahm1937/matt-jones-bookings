@@ -7,6 +7,7 @@ import {
     useEffect,
     useState,
 } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { SERVER_URL } from "./Constants";
 import { GetLoginStatusResponse } from "@backendTypes/index";
 
@@ -23,6 +24,7 @@ type StylesContextType = {
 
 const LoginContext = createContext<LoginContextType | undefined>(undefined);
 const StylesContext = createContext<StylesContextType | undefined>(undefined);
+const queryClient = new QueryClient();
 
 interface IGlobalProvider {
     children: any;
@@ -58,11 +60,13 @@ export const GlobalProvider = ({ children }: IGlobalProvider) => {
     }, []);
 
     return (
-        <LoginContext.Provider value={{ isLoggedIn, login, logout }}>
-            <StylesContext.Provider value={{ navHeight, setNavHeight }}>
-                {children}
-            </StylesContext.Provider>
-        </LoginContext.Provider>
+        <QueryClientProvider client={queryClient}>
+            <LoginContext.Provider value={{ isLoggedIn, login, logout }}>
+                <StylesContext.Provider value={{ navHeight, setNavHeight }}>
+                    {children}
+                </StylesContext.Provider>
+            </LoginContext.Provider>
+        </QueryClientProvider>
     );
 };
 
