@@ -4,7 +4,6 @@ import { OAuth2Client, Credentials } from "google-auth-library";
 import {
     Attendee,
     InsertEventRequest,
-    ResponseStatus,
     GetAllEventsResponse,
     ScrubbedEventData,
 } from "../interfaces";
@@ -61,6 +60,31 @@ export class Owner {
             requestBody: eventRequest,
         });
         return response.data;
+    }
+
+    async updateEvent(
+        eventId: string,
+        clientEmail: string,
+        updatedEventDetails: InsertEventRequest
+    ): Promise<calendar_v3.Schema$Event> {
+        const attendees: Attendee[] = [
+            { email: clientEmail },
+            { email: process.env.OWNER_CALENDAR_ID! },
+        ];
+        updatedEventDetails.attendees = attendees;
+        const response = await this.calendar.events.update({
+            calendarId: process.env.OWNER_CALENDAR_ID!,
+            eventId,
+            requestBody: updatedEventDetails,
+        });
+        return response.data;
+    }
+
+    async deleteEvent(eventId: string): Promise<void> {
+        await this.calendar.events.delete({
+            calendarId: process.env.OWNER_CALENDAR_ID!,
+            eventId,
+        });
     }
 
     async getOwnerEventsByResponseStatus(): Promise<GetAllEventsResponse> {

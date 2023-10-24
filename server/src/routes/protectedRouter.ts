@@ -6,6 +6,7 @@ import {
     InsertEventResponse,
 } from "../interfaces";
 import { owner } from "../server";
+import { calendar_v3 } from "googleapis";
 
 const router = express.Router();
 
@@ -24,6 +25,36 @@ router.post("/insertEvent", async (req: Request, res: Response) => {
     } catch (error: any) {
         console.log(error.message);
         res.status(500).send("Error inserting event");
+    }
+});
+
+router.put("/updateEvent/:eventId", async (req: Request, res: Response) => {
+    const { eventId } = req.params;
+    const updatedEventDetails: InsertEventRequest = req.body;
+    const { email } = (req as unknown as AuthenticatedRequest).session;
+
+    try {
+        const updatedEvent = await owner.updateEvent(
+            eventId,
+            email,
+            updatedEventDetails
+        );
+        res.json(updatedEvent);
+    } catch (error: any) {
+        console.error(`Error updating event: ${error.message}`);
+        res.status(500).send("Error updating event");
+    }
+});
+
+router.delete("/deleteEvent/:eventId", async (req: Request, res: Response) => {
+    const { eventId } = req.params;
+
+    try {
+        await owner.deleteEvent(eventId);
+        res.send("Event deleted successfully");
+    } catch (error: any) {
+        console.error(`Error deleting event: ${error.message}`);
+        res.status(500).send("Error deleting event");
     }
 });
 

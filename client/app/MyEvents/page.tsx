@@ -5,6 +5,7 @@ import { GetUserEventsResponse } from "@backendTypes/index";
 import classNames from "classnames";
 import { fetchEvents } from "./utils";
 import Link from "next/link";
+import { updateEvent, deleteEvent } from "./utils";
 
 export default function MyEvents() {
     const [isPageVisible, setPageVisible] = useState(false);
@@ -24,6 +25,19 @@ export default function MyEvents() {
         };
         getUserEvents();
     }, []);
+
+    const handleDelete = (eventId: string) => {
+        setEvents(events.filter((event) => event.id !== eventId));
+    };
+
+    const handleUpdate = async () => {
+        try {
+            const updatedEvents = await fetchEvents();
+            setEvents(updatedEvents);
+        } catch (error) {
+            console.error("Failed to fetch updated events:", error);
+        }
+    };
 
     return (
         <div
@@ -46,7 +60,11 @@ export default function MyEvents() {
                             key={event.id}
                             className="flex w-full items-start justify-center"
                         >
-                            <EventCard event={event} />
+                            <EventCard
+                                event={event}
+                                onUpdate={handleUpdate}
+                                onDelete={handleDelete}
+                            />
                         </div>
                     ))}
                 </div>
@@ -67,10 +85,38 @@ export default function MyEvents() {
 
 interface IEventCardProps {
     event: calendar_v3.Schema$Event;
+    onDelete: (eventId: string) => void;
+    onUpdate: () => void;
 }
 
 const EventCard = (props: IEventCardProps) => {
-    const { event } = props;
+    const { event, onDelete, onUpdate } = props;
+
+    const handleUpdate = async () => {
+        try {
+            const updatedEventDetails: calendar_v3.Schema$Event = {
+                summary: "Placeholder for Updated Event",
+                location: "Updated Location",
+                start: event.start,
+                end: event.end,
+            };
+
+            await updateEvent(event.id!, updatedEventDetails);
+            onUpdate();
+        } catch (error) {
+            console.error("Failed to update event:", error);
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await deleteEvent(event.id!);
+            onDelete(event.id!);
+        } catch (error) {
+            console.error("Failed to delete event:", error);
+        }
+    };
+
     return (
         <div className="flex h-full w-full flex-col rounded-md bg-white p-4 shadow-md">
             <h3 className="text-lg font-semibold">{event.summary}</h3>
@@ -79,6 +125,18 @@ const EventCard = (props: IEventCardProps) => {
                 <p>Start Date: {event.start?.date}</p>
                 <p>End Date: {event.end?.date}</p>
             </div>
+            <button
+                className="mt-2 rounded-md bg-blue-500 py-2 text-white"
+                onClick={handleUpdate}
+            >
+                Update Event
+            </button>
+            <button
+                className="mt-2 rounded-md bg-red-500 py-2 text-white"
+                onClick={handleDelete}
+            >
+                Delete Event
+            </button>
         </div>
     );
 };
