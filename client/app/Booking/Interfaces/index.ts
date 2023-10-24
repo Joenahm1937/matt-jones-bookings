@@ -21,8 +21,8 @@ export interface IUserSelection {
 }
 
 export interface IEventDates {
-    acceptedDates: DateRange[];
-    pendingDates: DateRange[];
+    acceptedDates: Date[];
+    pendingDates: Date[];
 }
 
 export interface ICalendarHeaderProps {

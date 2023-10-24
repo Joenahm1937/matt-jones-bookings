@@ -35,6 +35,8 @@ export const Calendar = (props: ICalendarProps) => {
             const response = await fetch(`${SERVER_URL}/public/blockedDays`);
             const data: GetAllEventsResponse = await response.json();
             const transformedData: IEventDates = transformEvents(data);
+            console.log("STRINGIFIED DATA", JSON.stringify(transformedData.acceptedDates))
+            console.log("NON STRINGIFIED DATA", transformedData.acceptedDates)
             setEventDates(transformedData);
         } catch (error) {
             console.error("Error fetching events:", error);
@@ -65,19 +67,23 @@ export const Calendar = (props: ICalendarProps) => {
             <div className="flex h-1/2 items-center justify-center">
                 <>
                     <style>{css}</style>
-                    <DayPicker
-                        mode="range"
-                        selected={range}
-                        disabled={eventDates.acceptedDates}
-                        onSelect={handleRangeSelection}
-                        captionLayout="dropdown-buttons"
-                        max={6}
-                        numberOfMonths={showDesktopView && !showForm ? 2 : 1}
-                        pagedNavigation
-                        defaultMonth={currentDate}
-                        fromDate={currentDate}
-                        toYear={currentDate.getFullYear() + 1}
-                    />
+                    <div className="rounded-3xl shadow-lg">
+                        <DayPicker
+                            mode="range"
+                            selected={range}
+                            disabled={eventDates.acceptedDates}
+                            onSelect={handleRangeSelection}
+                            captionLayout="dropdown-buttons"
+                            max={6}
+                            numberOfMonths={
+                                showDesktopView && !showForm ? 2 : 1
+                            }
+                            pagedNavigation
+                            defaultMonth={currentDate}
+                            fromDate={currentDate}
+                            toYear={currentDate.getFullYear() + 1}
+                        />
+                    </div>
                 </>
             </div>
             {isLoggedIn ? (
