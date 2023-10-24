@@ -34,10 +34,7 @@ export interface ScrubbedEventData {
 }
 
 export interface GetAllEventsResponse {
-    needsAction: ScrubbedEventData[];
-    tentative: ScrubbedEventData[];
-    accepted: ScrubbedEventData[];
-    noStatus: ScrubbedEventData[];
+    bookedDays: ScrubbedEventData[];
 }
 
 export type ResponseStatus = keyof GetAllEventsResponse;

@@ -8,7 +8,7 @@ import {
     useState,
 } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { SERVER_URL } from "./Constants";
+import { CLIENT_URL, SERVER_URL } from "./Constants";
 import { GetLoginStatusResponse } from "@backendTypes/index";
 
 type LoginContextType = {
@@ -44,7 +44,10 @@ export const GlobalProvider = ({ children }: IGlobalProvider) => {
         await fetch(`${SERVER_URL}/auth/logout`, {
             credentials: "include",
         });
-        setTimeout(() => setIsLoggedIn(false), 1000);
+        setTimeout(
+            () => (window.location.href = `${CLIENT_URL}`),
+            1000,
+        );
     };
 
     useEffect(() => {

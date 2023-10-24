@@ -73,38 +73,17 @@ export class Owner {
             });
 
             const events = response.data.items || [];
-            const ownerEmail = process.env.OWNER_CALENDAR_ID!;
-
-            const groupedEvents: GetAllEventsResponse = {
-                needsAction: [],
-                tentative: [],
-                accepted: [],
-                noStatus: [],
-            };
-
-            events.forEach((event) => {
+            const bookedDays = events.map((event) => {
                 const filteredEventData: ScrubbedEventData = {
                     start: event.start,
                     end: event.end,
                 };
-                const ownerAttendee = event.attendees?.find(
-                    (attendee) => attendee.email === ownerEmail
-                );
-                if (
-                    ownerAttendee &&
-                    ownerAttendee.responseStatus &&
-                    Object.keys(groupedEvents).includes(
-                        ownerAttendee.responseStatus
-                    )
-                ) {
-                    groupedEvents[
-                        ownerAttendee.responseStatus as ResponseStatus
-                    ].push(filteredEventData);
-                } else {
-                    groupedEvents.noStatus.push(filteredEventData);
-                }
+                return filteredEventData;
             });
 
+            const groupedEvents: GetAllEventsResponse = {
+                bookedDays,
+            };
             return groupedEvents;
         } catch (error: any) {
             throw new Error(

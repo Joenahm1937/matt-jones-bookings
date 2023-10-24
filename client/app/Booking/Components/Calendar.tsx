@@ -25,7 +25,6 @@ export const Calendar = (props: ICalendarProps) => {
 
     const [eventDates, setEventDates] = useState<IEventDates>({
         acceptedDates: [],
-        pendingDates: [],
     });
 
     const { isLoggedIn } = useLogin();
@@ -35,8 +34,6 @@ export const Calendar = (props: ICalendarProps) => {
             const response = await fetch(`${SERVER_URL}/public/blockedDays`);
             const data: GetAllEventsResponse = await response.json();
             const transformedData: IEventDates = transformEvents(data);
-            console.log("STRINGIFIED DATA", JSON.stringify(transformedData.acceptedDates))
-            console.log("NON STRINGIFIED DATA", transformedData.acceptedDates)
             setEventDates(transformedData);
         } catch (error) {
             console.error("Error fetching events:", error);

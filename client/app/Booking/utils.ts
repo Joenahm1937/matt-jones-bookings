@@ -39,33 +39,29 @@ const conveyUserSelection = (range: DateRange | undefined): IUserSelection => {
 
 const extractDatesFromRange = (eventArray: ScrubbedEventData[]) => {
     let dates: Date[] = [];
-  
+
     eventArray.forEach((event) => {
-      if (event.start?.date && event.end?.date) {
-        // Parse the dates as UTC
-        const startDate = parseISO(event.start.date);
-        const endDate = parseISO(event.end.date);
-  
-        // Iterate through the range of dates
-        for (let d = startDate; d < endDate; d = addDays(d, 1)) {
-          // Add each date to the array
-          dates.push(d);
+        if (event.start?.date && event.end?.date) {
+            // Parse the dates as UTC
+            const startDate = parseISO(event.start.date);
+            const endDate = parseISO(event.end.date);
+
+            // Iterate through the range of dates
+            for (let d = startDate; d < endDate; d = addDays(d, 1)) {
+                // Add each date to the array
+                dates.push(d);
+            }
         }
-      }
     });
-  
+
     return dates;
-  };
+};
 
 export const transformEvents = (
     eventsResponse: GetAllEventsResponse,
 ): IEventDates => {
     return {
-        acceptedDates: extractDatesFromRange([
-            ...eventsResponse.noStatus,
-            ...eventsResponse.accepted,
-        ]),
-        pendingDates: extractDatesFromRange(eventsResponse.needsAction),
+        acceptedDates: extractDatesFromRange(eventsResponse.bookedDays),
     };
 };
 
