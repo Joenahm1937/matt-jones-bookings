@@ -54,7 +54,12 @@ export class Owner {
             { email: clientEmail },
             { email: process.env.OWNER_CALENDAR_ID! },
         ];
-        eventRequest.attendees = attendees;
+        console.log(eventRequest.attendees)
+        eventRequest.attendees = [
+            ...(eventRequest.attendees || []),
+            ...attendees,
+        ];
+        console.log(eventRequest.attendees)
         const response = await this.calendar.events.insert({
             calendarId: process.env.OWNER_CALENDAR_ID!,
             requestBody: eventRequest,
@@ -71,7 +76,10 @@ export class Owner {
             { email: clientEmail },
             { email: process.env.OWNER_CALENDAR_ID! },
         ];
-        updatedEventDetails.attendees = attendees;
+        updatedEventDetails.attendees = [
+            ...(updatedEventDetails.attendees || []),
+            ...attendees,
+        ];
         const response = await this.calendar.events.update({
             calendarId: process.env.OWNER_CALENDAR_ID!,
             eventId,

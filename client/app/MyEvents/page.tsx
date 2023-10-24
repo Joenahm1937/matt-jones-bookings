@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { calendar_v3 } from "googleapis";
-import { GetUserEventsResponse } from "@backendTypes/index";
+import { GetUserEventsResponse, InsertEventRequest } from "@backendTypes/index";
 import classNames from "classnames";
 import { fetchEvents } from "./utils";
 import Link from "next/link";
 import { updateEvent, deleteEvent } from "./utils";
+import { OWNER_EMAIL } from "../Constants";
 
 export default function MyEvents() {
     const [isPageVisible, setPageVisible] = useState(false);
@@ -94,11 +95,12 @@ const EventCard = (props: IEventCardProps) => {
 
     const handleUpdate = async () => {
         try {
-            const updatedEventDetails: calendar_v3.Schema$Event = {
+            const updatedEventDetails: InsertEventRequest = {
                 summary: "Placeholder for Updated Event",
+                description: "Placeholder Description Lorem Ipsim woooooo",
                 location: "Updated Location",
-                start: event.start,
-                end: event.end,
+                start: event.start as any,
+                end: event.end as any,
             };
 
             await updateEvent(event.id!, updatedEventDetails);
@@ -125,6 +127,22 @@ const EventCard = (props: IEventCardProps) => {
                 <p>Start Date: {event.start?.date}</p>
                 <p>End Date: {event.end?.date}</p>
             </div>
+            <div className="mt-2 text-sm">
+                <p>{event.description}</p>
+            </div>
+            {event.attendees && (
+                <div className="mt-2 text-sm">
+                    <h3 className="text-lg font-semibold">Attendees</h3>
+                    <ul>
+                        {event.attendees?.map(
+                            (attendee, id) =>
+                                attendee.email !== OWNER_EMAIL && (
+                                    <li key={id}>{attendee.email}</li>
+                                ),
+                        )}
+                    </ul>
+                </div>
+            )}
             <button
                 className="mt-2 rounded-md bg-blue-500 py-2 text-white"
                 onClick={handleUpdate}

@@ -41,7 +41,8 @@ export type ResponseStatus = keyof GetAllEventsResponse;
 
 export interface InsertEventRequest {
     summary: string;
-    location: string;
+    description?: string;
+    location?: string;
     start: calendar_v3.Schema$EventDateTime;
     end: calendar_v3.Schema$EventDateTime;
     attendees?: Attendee[];

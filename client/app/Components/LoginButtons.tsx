@@ -18,7 +18,7 @@ export const LoginButton = () => {
 
     return (
         <button
-            className={`transition-width rounded-md bg-stone-500 px-8 py-2 text-lg font-medium text-white duration-500
+            className={`transition-width rounded-md bg-[#82593e] px-8 py-2 text-lg font-medium text-white duration-500
                     ${buttonClicked ? "w-44" : "w-32"}`}
             onClick={handleClick}
         >
@@ -44,7 +44,7 @@ export const LogoutButton = () => {
     return (
         <li>
             <button
-                className={`transition-width rounded-md bg-slate-500 px-6 py-2 text-lg font-medium text-white duration-500
+                className={`transition-width rounded-md bg-[#82593e] px-6 py-2 text-lg font-medium text-white duration-500
                     ${buttonClicked ? "w-44" : "w-32"}`}
                 onClick={handleClick}
             >

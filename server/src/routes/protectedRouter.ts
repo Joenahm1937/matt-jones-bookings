@@ -6,7 +6,6 @@ import {
     InsertEventResponse,
 } from "../interfaces";
 import { owner } from "../server";
-import { calendar_v3 } from "googleapis";
 
 const router = express.Router();
 

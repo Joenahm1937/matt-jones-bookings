@@ -1,10 +1,10 @@
 import { FormEvent, useState } from "react";
 import { useMutation } from "react-query";
 import { useRouter } from "next/navigation";
-import { insertEvent } from "../utils";
+import { insertEvent, validateEmail } from "../utils";
 import { IFormProps } from "../Interfaces";
-import { FaArrowLeft } from "react-icons/fa";
-import { InsertEventRequest } from "@backendTypes/index";
+import { FaArrowLeft, FaTimes } from "react-icons/fa";
+import { InsertEventRequest, Attendee } from "@backendTypes/index";
 import { calendar_v3 } from "googleapis";
 import Spinner from "@/app/Components/Spinner";
 
@@ -12,8 +12,11 @@ export const Form = (props: IFormProps) => {
     const { range, onBack, showForm } = props;
     const [formData, setFormData] = useState({
         summary: "",
+        description: "",
         location: "",
+        attendees: [] as Attendee[],
     });
+    const [attendeeInput, setAttendeeInput] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
     const router = useRouter();
@@ -27,6 +30,45 @@ export const Form = (props: IFormProps) => {
             setErrorMessage("Failed to insert event. Please try again later.");
         },
     });
+
+    const handleAttendeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setAttendeeInput(e.target.value);
+    };
+
+    const handleDeleteAttendee = (emailToDelete: string) => {
+        setFormData({
+            ...formData,
+            attendees: formData.attendees.filter(
+                (attendee: Attendee) => attendee.email !== emailToDelete,
+            ),
+        });
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (validateEmail(attendeeInput)) {
+                const currentAttendee: Attendee = {
+                    email: attendeeInput,
+                };
+
+                setFormData((prevFormData) => {
+                    const updatedAttendees = [
+                        ...prevFormData.attendees,
+                        currentAttendee,
+                    ];
+                    return {
+                        ...prevFormData,
+                        attendees: updatedAttendees,
+                    };
+                });
+
+                setAttendeeInput("");
+            } else {
+                setErrorMessage("Invalid email address");
+            }
+        }
+    };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -51,10 +93,13 @@ export const Form = (props: IFormProps) => {
 
         const eventRequest: InsertEventRequest = {
             summary: formData.summary,
+            description: formData.description,
             location: formData.location,
+            attendees: formData.attendees,
             start,
             end,
         };
+        console.log(eventRequest);
 
         mutation.mutate(eventRequest);
     };
@@ -93,6 +138,58 @@ export const Form = (props: IFormProps) => {
                     </div>
                     <div className="mb-4">
                         <label
+                            htmlFor="attendees"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Attendees
+                        </label>
+                        <div className="mt-1 flex flex-wrap gap-2">
+                            {formData.attendees.map((attendee, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center rounded bg-blue-100 px-2 py-1 text-sm"
+                                >
+                                    <span>{attendee.email}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleDeleteAttendee(attendee.email)
+                                        }
+                                        className="ml-2 text-red-500"
+                                        aria-label={`Remove ${attendee.email}`}
+                                    >
+                                        <FaTimes size={12} />
+                                    </button>
+                                </div>
+                            ))}
+                            <input
+                                type="text"
+                                id="attendees"
+                                value={attendeeInput}
+                                onChange={handleAttendeeChange}
+                                onKeyDown={handleKeyDown}
+                                className="rounded-md border p-2"
+                            />
+                        </div>
+                    </div>
+                    <div className="mb-4">
+                        <label
+                            htmlFor="summary"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Title
+                        </label>
+                        <input
+                            type="text"
+                            id="summary"
+                            name="summary"
+                            required
+                            onChange={handleChange}
+                            className="mt-1 w-full rounded-md border p-2"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label
                             htmlFor="location"
                             className="block text-sm font-medium text-gray-700"
                         >
@@ -109,16 +206,16 @@ export const Form = (props: IFormProps) => {
                     </div>
                     <div className="mb-4">
                         <label
-                            htmlFor="summary"
+                            htmlFor="description"
                             className="block text-sm font-medium text-gray-700"
                         >
-                            Event Summary
+                            Event Notes
                         </label>
                         <textarea
-                            id="summary"
-                            name="summary"
+                            id="description"
+                            name="description"
                             rows={4}
-                            value={formData.summary}
+                            value={formData.description}
                             onChange={handleChange}
                             className="mt-1 w-full rounded-md border p-2"
                         ></textarea>

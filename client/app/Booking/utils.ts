@@ -8,6 +8,11 @@ import type {
 } from "@backendTypes/index";
 import { SERVER_URL } from "../Constants";
 
+export const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+};
+
 const conveyUserSelection = (range: DateRange | undefined): IUserSelection => {
     const { from, to } = range || {};
 

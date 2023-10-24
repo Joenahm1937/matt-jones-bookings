@@ -18,27 +18,41 @@ export default function Section1(props: ISectionProps) {
 
     useEffect(() => {
         // Animation for text content
-        gsap.fromTo(
-            contentRef.current,
-            {
-                autoAlpha: 0,
-                y: -20,
-            },
-            {
-                y: 0,
-                delay: 0.8,
-                autoAlpha: 1,
-                duration: 2,
-                scrollTrigger: {
-                    once: true,
-                    scroller: ".home-section-container",
-                    trigger: contentRef.current,
-                    start: "top 60%",
-                    end: "bottom 0%",
-                    toggleActions: "play none restart reverse",
+        const content = contentRef.current;
+        if (content) {
+            // Add will-change property before animation starts
+            content.style.willChange = "transform, opacity";
+
+            // Animation for text content
+
+            gsap.fromTo(
+                contentRef.current,
+                {
+                    autoAlpha: 0,
+                    y: -20,
                 },
-            },
-        );
+                {
+                    y: 0,
+                    delay: 0.8,
+                    autoAlpha: 1,
+                    duration: 2,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        once: true,
+                        scroller: ".home-section-container",
+                        trigger: contentRef.current,
+                        start: "top 60%",
+                        end: "bottom 0%",
+                        toggleActions: "play none restart reverse",
+                        onUpdate: (self) => {
+                            if (self.progress === 1) {
+                                content.style.willChange = "";
+                            }
+                        },
+                    },
+                },
+            );
+        }
     }, []);
 
     return (
@@ -49,7 +63,7 @@ export default function Section1(props: ISectionProps) {
             ></div>
             <div
                 ref={contentRef}
-                className="absolute top-0 flex h-full w-full items-center justify-center bg-black bg-opacity-10 p-8"
+                className="absolute top-0 flex h-full w-full items-center justify-center bg-black bg-opacity-10 p-8 will-change-transform"
             >
                 <ContentOverlay />
             </div>
@@ -75,7 +89,7 @@ const ContentOverlay: React.FC = () => {
                 </h1>
                 <p className="text-xl xl:text-3xl">{HOME_SUBHEADER}</p>
             </div>
-            <button className="rounded-full bg-slate-500 px-14 py-4 text-white shadow-md transition-all duration-200 hover:bg-slate-600 hover:text-white  active:translate-x-0.5 active:translate-y-0.5 active:bg-gray-800 active:shadow-inner">
+            <button className="rounded-full bg-[#82593e] px-14 py-4 text-white shadow-md transition-all duration-200 hover:bg-slate-600 hover:text-white  active:translate-x-0.5 active:translate-y-0.5 active:bg-gray-800 active:shadow-inner">
                 {isLoggedIn ? "Book Now" : "Login"}
             </button>
         </div>

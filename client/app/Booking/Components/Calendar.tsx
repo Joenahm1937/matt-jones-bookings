@@ -71,6 +71,9 @@ export const Calendar = (props: ICalendarProps) => {
                             mode="range"
                             selected={range}
                             disabled={eventDates.acceptedDates}
+                            modifiersStyles={{
+                                selected: { backgroundColor: "#82593e" },
+                            }}
                             onSelect={handleRangeSelection}
                             captionLayout="dropdown-buttons"
                             max={6}
@@ -87,7 +90,7 @@ export const Calendar = (props: ICalendarProps) => {
             </div>
             {isLoggedIn ? (
                 <button
-                    className={`h-14 w-56 transform rounded-lg px-4 py-2 shadow-md transition-all duration-200 hover:bg-black hover:text-white focus:outline-none ${
+                    className={`h-14 w-56 transform rounded-lg bg-[#82593e] px-4 py-2 text-white shadow-md transition-all duration-200 hover:bg-[#4e301d] hover:text-white focus:outline-none ${
                         isDisabled
                             ? "scale-75 bg-gray-300 opacity-60"
                             : "bg-white text-black"
