@@ -13,6 +13,7 @@ export interface ICalendarProps {
     showDesktopView: boolean;
     range?: DateRange;
     handleRangeSelection: SelectRangeEventHandler;
+    setPageVisible: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface IUserSelection {

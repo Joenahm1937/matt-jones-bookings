@@ -13,7 +13,7 @@ export const LoginButton = () => {
         setTimeout(() => {
             setLoginText("Logging in...");
             login();
-        }, 200); // Delay for 500ms (duration of animation)
+        }, 400); // Delay for 500ms (duration of animation)
     };
 
     return (
@@ -38,7 +38,7 @@ export const LogoutButton = () => {
         setTimeout(() => {
             setLogoutText("Logging out...");
             logout();
-        }, 200);
+        }, 400);
     };
 
     return (

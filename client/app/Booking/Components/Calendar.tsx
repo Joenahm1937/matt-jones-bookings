@@ -21,6 +21,7 @@ export const Calendar = (props: ICalendarProps) => {
         showForm,
         setShowForm,
         showDesktopView,
+        setPageVisible,
     } = props;
 
     const [eventDates, setEventDates] = useState<IEventDates>({
@@ -35,6 +36,7 @@ export const Calendar = (props: ICalendarProps) => {
             const data: GetAllEventsResponse = await response.json();
             const transformedData: IEventDates = transformEvents(data);
             setEventDates(transformedData);
+            setPageVisible(true);
         } catch (error) {
             console.error("Error fetching events:", error);
         }

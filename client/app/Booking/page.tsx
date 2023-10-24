@@ -53,7 +53,7 @@ export default function Booking() {
             `(min-width: ${MIN_WIDTH_DESKTOP})`,
         ).matches;
         setIsDesktopView(isDesktop);
-        setPageVisible(true);
+        // setPageVisible(true);
 
         const mediaQuery = window.matchMedia(
             `(min-width: ${MIN_WIDTH_LARGE_SCREEN})`,
@@ -89,6 +89,7 @@ export default function Booking() {
                     showForm={isFormVisible}
                     setShowForm={setIsFormVisible}
                     showDesktopView={isDesktopView}
+                    setPageVisible={setPageVisible}
                 />
             </div>
 
@@ -104,7 +105,11 @@ export default function Booking() {
                 style={{ boxShadow: "-4px 0 6px -2px rgba(0, 0, 0, 0.1)" }}
             >
                 <div className="h-full w-full">
-                    <Form onBack={handleBack} showForm={isFormVisible} range={range}/>
+                    <Form
+                        onBack={handleBack}
+                        showForm={isFormVisible}
+                        range={range}
+                    />
                 </div>
             </div>
         </div>

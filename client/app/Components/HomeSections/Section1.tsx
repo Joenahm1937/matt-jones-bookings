@@ -15,7 +15,6 @@ interface ISectionProps {
 export default function Section1(props: ISectionProps) {
     const { scrollTo, goToSectionRef } = props;
     const contentRef = useRef<HTMLDivElement>(null);
-    const imageRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         // Animation for text content
@@ -27,28 +26,9 @@ export default function Section1(props: ISectionProps) {
             },
             {
                 y: 0,
+                delay: 0.8,
                 autoAlpha: 1,
-                duration: 1.2,
-                scrollTrigger: {
-                    once: true,
-                    scroller: ".home-section-container",
-                    trigger: contentRef.current,
-                    start: "top 60%",
-                    end: "bottom 0%",
-                    toggleActions: "play none restart reverse",
-                },
-            },
-        );
-
-        // Animation for background image
-        gsap.fromTo(
-            imageRef.current,
-            {
-                autoAlpha: 0, // Start with an opacity of 0
-            },
-            {
-                autoAlpha: 1, // Animate to an opacity of 1
-                duration: 1,
+                duration: 2,
                 scrollTrigger: {
                     once: true,
                     scroller: ".home-section-container",
@@ -64,7 +44,6 @@ export default function Section1(props: ISectionProps) {
     return (
         <div className="home-section relative flex h-screen w-full items-center justify-center">
             <div
-                ref={imageRef}
                 className="h-full w-full bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: `url('/backgroundImage.jpg')` }}
             ></div>
