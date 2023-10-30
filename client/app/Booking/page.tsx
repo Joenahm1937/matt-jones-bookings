@@ -6,6 +6,8 @@ import { Form } from "./Components/Form";
 import { useLoading } from "../template";
 import classNames from "classnames";
 import { DateRange, SelectRangeEventHandler } from "react-day-picker";
+import { insertEvent } from "./utils";
+import { useRouter } from "next/navigation";
 
 export default function Booking() {
     const MIN_WIDTH_DESKTOP = "1280px";
@@ -15,6 +17,11 @@ export default function Booking() {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [isDesktopView, setIsDesktopView] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
+    const router = useRouter();
+
+    const onFormSucess = () => {
+        router.push("/MyEvents");
+    };
 
     const { loading } = useLoading();
     const formRef = useRef<HTMLDivElement>(null);
@@ -106,6 +113,8 @@ export default function Booking() {
             >
                 <div className="h-full w-full">
                     <Form
+                        mutationCallback={insertEvent}
+                        onSuccess={onFormSucess}
                         onBack={handleBack}
                         showForm={isFormVisible}
                         range={range}

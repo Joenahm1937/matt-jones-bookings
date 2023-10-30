@@ -1,6 +1,8 @@
 import { calendar_v3 } from "googleapis";
 import { SERVER_URL } from "../Constants";
-import { InsertEventRequest } from "@backendTypes/index";
+import { format, parseISO } from "date-fns";
+import { DateRange } from "react-day-picker";
+import { ISubmitForm } from "../Booking/Interfaces";
 
 export const fetchEvents = async () => {
     const response = await fetch(`${SERVER_URL}/protected/userEvents`, {
@@ -12,10 +14,7 @@ export const fetchEvents = async () => {
     return response.json();
 };
 
-export const updateEvent = async (
-    eventId: string,
-    updatedEventDetails: InsertEventRequest,
-) => {
+export const updateEvent = async ({ eventRequest, eventId }: ISubmitForm) => {
     const response = await fetch(
         `${SERVER_URL}/protected/updateEvent/${eventId}`,
         {
@@ -23,7 +22,7 @@ export const updateEvent = async (
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(updatedEventDetails),
+            body: JSON.stringify(eventRequest),
             credentials: "include",
         },
     );
@@ -50,3 +49,39 @@ export const deleteEvent = async (eventId: string) => {
 
     return response.text();
 };
+
+export const formatEventDate = (dateString: string) => {
+    if (!dateString) return "TBA";
+    const date = parseISO(dateString);
+    return format(date, "PPPP");
+};
+
+function getDateFromEventDateTime(
+    eventDateTime?: calendar_v3.Schema$EventDateTime,
+): Date | undefined {
+    if (!eventDateTime) return undefined;
+
+    const { date, dateTime, timeZone } = eventDateTime;
+
+    if (date) {
+        return new Date(date);
+    }
+
+    if (dateTime) {
+        return timeZone
+            ? new Date(dateTime + " " + timeZone)
+            : new Date(dateTime);
+    }
+
+    return undefined;
+}
+
+export function getDateRange(
+    start?: calendar_v3.Schema$EventDateTime,
+    end?: calendar_v3.Schema$EventDateTime,
+): DateRange {
+    return {
+        from: getDateFromEventDateTime(start),
+        to: getDateFromEventDateTime(end),
+    };
+}

@@ -1,6 +1,6 @@
 import { parseISO, addDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
-import { IEventDates, IUserSelection } from "./Interfaces";
+import { IEventDates, ISubmitForm, IUserSelection } from "./Interfaces";
 import type {
     GetAllEventsResponse,
     InsertEventRequest,
@@ -70,7 +70,7 @@ export const transformEvents = (
     };
 };
 
-export const insertEvent = async (eventRequest: InsertEventRequest) => {
+export const insertEvent = async ({ eventRequest, eventId }: ISubmitForm) => {
     try {
         const response = await fetch(`${SERVER_URL}/protected/insertEvent`, {
             method: "POST",

@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { FaChevronDown } from "react-icons/fa";
 import { HOME_HEADER, HOME_SUBHEADER } from "../../Constants";
 import { useLogin } from "../../GlobalContext";
+import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -89,9 +90,11 @@ const ContentOverlay: React.FC = () => {
                 </h1>
                 <p className="text-xl xl:text-3xl">{HOME_SUBHEADER}</p>
             </div>
-            <button className="rounded-full bg-[#82593e] px-14 py-4 text-white shadow-md transition-all duration-200 hover:bg-slate-600 hover:text-white  active:translate-x-0.5 active:translate-y-0.5 active:bg-gray-800 active:shadow-inner">
-                {isLoggedIn ? "Book Now" : "Login"}
-            </button>
+            <Link href="/Booking" className="flex flex-grow items-center">
+                <button className="rounded-full bg-[#82593e] px-14 py-4 text-white shadow-md transition-all duration-200 hover:bg-slate-600 hover:text-white  active:translate-x-0.5 active:translate-y-0.5 active:bg-gray-800 active:shadow-inner">
+                    Book Now
+                </button>
+            </Link>
         </div>
     );
 };

@@ -1,30 +1,29 @@
 import { FormEvent, useState } from "react";
 import { useMutation } from "react-query";
-import { useRouter } from "next/navigation";
-import { insertEvent, validateEmail } from "../utils";
+import { validateEmail } from "../utils";
 import { IFormProps } from "../Interfaces";
 import { FaArrowLeft, FaTimes } from "react-icons/fa";
 import { InsertEventRequest, Attendee } from "@backendTypes/index";
 import { calendar_v3 } from "googleapis";
 import Spinner from "@/app/Components/Spinner";
+import { OWNER_EMAIL } from "@/app/Constants";
 
 export const Form = (props: IFormProps) => {
-    const { range, onBack, showForm } = props;
+    const { range, onBack, showForm, mutationCallback, onSuccess } = props;
     const [formData, setFormData] = useState({
-        summary: "",
-        description: "",
-        location: "",
-        attendees: [] as Attendee[],
+        summary: props.initialData?.summary || "",
+        description: props.initialData?.description || "",
+        location: props.initialData?.location || "",
+        attendees:
+            props.initialData?.attendees?.filter(
+                (attendee) => attendee.email !== OWNER_EMAIL,
+            ) || ([] as Attendee[]),
     });
     const [attendeeInput, setAttendeeInput] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    const router = useRouter();
-
-    const mutation = useMutation(insertEvent, {
-        onSuccess: () => {
-            router.push("/MyEvents");
-        },
+    const mutation = useMutation(mutationCallback, {
+        onSuccess,
         onError: (error) => {
             console.error("Error inserting event:", error);
             setErrorMessage("Failed to insert event. Please try again later.");
@@ -99,9 +98,11 @@ export const Form = (props: IFormProps) => {
             start,
             end,
         };
-        console.log(eventRequest);
 
-        mutation.mutate(eventRequest);
+        mutation.mutate({
+            eventRequest,
+            eventId: props.eventId,
+        });
     };
 
     const handleChange = (
@@ -115,7 +116,9 @@ export const Form = (props: IFormProps) => {
 
     return (
         <div
-            className={`flex h-screen w-full flex-col ${
+            className={`flex ${
+                props.isEmbedded ? "h-full" : "h-screen"
+            } w-full flex-col ${
                 !range && "items-center"
             } justify-center bg-white p-10 shadow-md`}
         >
@@ -183,6 +186,7 @@ export const Form = (props: IFormProps) => {
                             type="text"
                             id="summary"
                             name="summary"
+                            value={formData.summary}
                             required
                             onChange={handleChange}
                             className="mt-1 w-full rounded-md border p-2"
@@ -200,6 +204,7 @@ export const Form = (props: IFormProps) => {
                             id="location"
                             name="location"
                             required
+                            value={formData.location}
                             onChange={handleChange}
                             className="mt-1 w-full rounded-md border p-2"
                         />

@@ -91,9 +91,7 @@ export const Calendar = (props: ICalendarProps) => {
             {isLoggedIn ? (
                 <button
                     className={`h-14 w-56 transform rounded-lg bg-[#82593e] px-4 py-2 text-white shadow-md transition-all duration-200 hover:bg-[#4e301d] hover:text-white focus:outline-none ${
-                        isDisabled
-                            ? "scale-75 bg-gray-300 opacity-60"
-                            : "bg-white text-black"
+                        isDisabled ? "scale-75 opacity-60" : " text-black"
                     }`}
                     disabled={isDisabled}
                     onClick={() => setShowForm(true)}

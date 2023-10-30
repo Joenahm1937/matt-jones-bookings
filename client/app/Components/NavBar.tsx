@@ -1,12 +1,15 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { WEBSITE_TITLE } from "../Constants";
 import {
+    IDesktopMenuProps,
     IHamburgerIconProps,
     IMenuLinksProps,
     IMobileMenuProps,
+    LinkHref,
 } from "../Interfaces";
 import { LoginButton, LogoutButton } from "./LoginButtons";
 import { useGlobalStyles, useLogin } from "../GlobalContext";
@@ -15,15 +18,30 @@ import { useLoading } from "../template";
 export default function NavBar() {
     const headerRef = useRef<HTMLDivElement | null>(null);
     const [isMenuOpen, setMenuOpen] = useState(false);
+    const [activeLink, setActiveLink] = useState<number>(0);
     const { navHeight, setNavHeight } = useGlobalStyles();
 
     const toggleMobileMenu = () => setMenuOpen((prevState) => !prevState);
     const hideMobileMenu = () => setMenuOpen(false);
 
+    // Update the active link when the pathname changes
+    const handleRouteChange = (href: LinkHref) => {
+        const linkOrderMap: Record<LinkHref, number> = {
+            "/": 0,
+            "/Booking": 1,
+            "/MyEvents": 2,
+        };
+        setActiveLink(linkOrderMap[href as LinkHref]);
+    };
+
+    const pathname = usePathname();
+
     useEffect(() => {
         if (headerRef.current) {
             setNavHeight(`${headerRef.current.offsetHeight}px`);
         }
+
+        handleRouteChange(pathname as LinkHref);
 
         const mediaQuery = window.matchMedia("(min-width: 1280px)"); // Tailwind's xl breakpoint
         mediaQuery.addEventListener("change", hideMobileMenu);
@@ -50,7 +68,10 @@ export default function NavBar() {
                             {WEBSITE_TITLE}
                         </div>
                     </Link>
-                    <DesktopMenu />
+                    <DesktopMenu
+                        activeLink={activeLink}
+                        handleRouteChange={handleRouteChange}
+                    />
                     <HamburgerIcon
                         isMenuOpen={isMenuOpen}
                         toggleMobileMenu={toggleMobileMenu}
@@ -61,6 +82,8 @@ export default function NavBar() {
                 isMenuOpen={isMenuOpen}
                 hideMobileMenu={hideMobileMenu}
                 topValue={navHeight}
+                activeLink={activeLink}
+                handleRouteChange={handleRouteChange}
             />
         </div>
     );
@@ -103,7 +126,14 @@ const HamburgerIcon = (props: IHamburgerIconProps) => {
 };
 
 const MenuLinks = (props: IMenuLinksProps) => {
-    const { linkStyle, onClick } = props;
+    const {
+        linkStyle,
+        onClick,
+        handleRouteChange,
+        menuItemsRef,
+        activeLink,
+        isMobile,
+    } = props;
     const { loading, setLoading } = useLoading();
     const { isLoggedIn } = useLogin();
     const links = [
@@ -111,7 +141,8 @@ const MenuLinks = (props: IMenuLinksProps) => {
         { href: "/Booking", text: "Booking" },
     ];
     if (isLoggedIn) links.push({ href: "/MyEvents", text: "My Events" });
-    const onPageTransition = (href: string) => {
+    const onPageTransition = (href: LinkHref) => {
+        handleRouteChange(href);
         /**
          * Navigating to the same page prevent template.tsx from loading,
          * meaning the loading state will infinitely remain true.
@@ -126,13 +157,21 @@ const MenuLinks = (props: IMenuLinksProps) => {
 
         onClick && onClick();
     };
-    return links.map((link) => (
-        <div className="group" key={link.href}>
+    return links.map((link, index) => (
+        <div
+            className={index === activeLink ? "active" : ""}
+            key={link.href}
+            ref={(el) => (menuItemsRef.current[index] = el)}
+        >
             <Link
                 key={link.href}
-                onClick={() => onPageTransition(link.href)}
+                onClick={() => onPageTransition(link.href as LinkHref)}
                 href={link.href}
-                className={`relative block px-4 py-2 text-lg font-medium transition-colors duration-200 ${linkStyle}`}
+                className={`relative flex w-full whitespace-nowrap px-4 py-2 text-center text-lg font-medium transition-colors duration-200 sm:px-16 ${linkStyle} ${
+                    isMobile && index === activeLink
+                        ? "w-1/3 rounded-lg bg-stone-300"
+                        : ""
+                }`}
             >
                 {link.text}
                 <span className="absolute bottom-0 left-0 h-0.5 w-0 transform bg-stone-500 transition-all duration-200 group-hover:w-full"></span>
@@ -141,12 +180,75 @@ const MenuLinks = (props: IMenuLinksProps) => {
     ));
 };
 
-const DesktopMenu = () => {
+const DesktopMenu = (props: IDesktopMenuProps) => {
+    const { handleRouteChange, activeLink } = props;
     const { isLoggedIn } = useLogin();
+    const [underlineStyle, setUnderlineStyle] = useState({
+        left: "0%",
+        width: "0%",
+    });
+    const menuItemsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+    const updateUnderlineStyle = () => {
+        const menuItem = menuItemsRef.current[activeLink];
+        if (menuItem) {
+            const parentRect = menuItem.parentElement!.getBoundingClientRect();
+            const menuItemRect = menuItem.getBoundingClientRect();
+            setUnderlineStyle({
+                left: `${
+                    ((menuItemRect.left - parentRect.left) / parentRect.width) *
+                    100
+                }%`,
+                width: `${(menuItemRect.width / parentRect.width) * 100}%`,
+            });
+        }
+    };
+
+    const handleResize = () => {
+        const activeMenuItem = menuItemsRef.current.find(
+            (item) => item && item.classList.contains("active"),
+        );
+        if (activeMenuItem) {
+            const parentRect =
+                activeMenuItem.parentElement!.getBoundingClientRect();
+            const menuItemRect = activeMenuItem.getBoundingClientRect();
+            setUnderlineStyle({
+                left: `${
+                    ((menuItemRect.left - parentRect.left) / parentRect.width) *
+                    100
+                }%`,
+                width: `${(menuItemRect.width / parentRect.width) * 100}%`,
+            });
+        }
+    };
+
+    useEffect(() => {
+        updateUnderlineStyle();
+    }, [activeLink, isLoggedIn]);
+
+    useEffect(() => {
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     return (
         <div className="hidden xl:block">
-            <ul className="flex gap-36">
-                <MenuLinks />
+            <ul className="flex">
+                <div className="mr-10 flex-col">
+                    <div className="flex">
+                        <MenuLinks
+                            handleRouteChange={handleRouteChange}
+                            menuItemsRef={menuItemsRef}
+                            activeLink={activeLink}
+                        />
+                    </div>
+                    <div className="relative flex h-[2px] w-full">
+                        <div
+                            className="absolute h-full bg-black transition-all duration-1000"
+                            style={underlineStyle}
+                        ></div>
+                    </div>
+                </div>
                 {isLoggedIn ? <LogoutButton /> : <LoginButton />}
             </ul>
         </div>
@@ -155,7 +257,13 @@ const DesktopMenu = () => {
 
 const MobileMenu = (props: IMobileMenuProps) => {
     const { isLoggedIn } = useLogin();
-    const { topValue, isMenuOpen, hideMobileMenu } = props;
+    const {
+        topValue,
+        isMenuOpen,
+        hideMobileMenu,
+        handleRouteChange,
+        activeLink,
+    } = props;
 
     const menuContainerClasses = () => {
         let baseClasses = `absolute w-full overflow-hidden rounded-b-lg bg-white bg-opacity-90 transition-all ease-in-out z-10`;
@@ -169,7 +277,14 @@ const MobileMenu = (props: IMobileMenuProps) => {
         <div className={menuContainerClasses()} style={{ top: topValue }}>
             <ul className="flex flex-col gap-2">
                 <div className="ml-2 w-full">
-                    <MenuLinks onClick={hideMobileMenu} linkStyle="" />
+                    <MenuLinks
+                        onClick={hideMobileMenu}
+                        linkStyle=""
+                        handleRouteChange={handleRouteChange}
+                        menuItemsRef={useRef<(HTMLDivElement | null)[]>([])}
+                        activeLink={activeLink}
+                        isMobile={true}
+                    />
                     <ul className="px-3 pt-5">
                         {isLoggedIn ? <LogoutButton /> : <LoginButton />}
                     </ul>
