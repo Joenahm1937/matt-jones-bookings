@@ -1,6 +1,6 @@
 import { InsertEventRequest } from "@backendTypes/index";
 import { Dispatch, SetStateAction } from "react";
-import { DateRange, SelectRangeEventHandler } from "react-day-picker";
+import { DateRange } from "react-day-picker";
 
 export interface ISubmitForm {
     eventRequest: InsertEventRequest;
@@ -23,7 +23,7 @@ export interface ICalendarProps {
     setShowForm: Dispatch<SetStateAction<boolean>>;
     showDesktopView: boolean;
     range?: DateRange;
-    handleRangeSelection: SelectRangeEventHandler;
+    handleRangeSelection: (range: DateRange | undefined) => void;
     setPageVisible: Dispatch<SetStateAction<boolean>>;
 }
 

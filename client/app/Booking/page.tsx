@@ -26,7 +26,7 @@ export default function Booking() {
     const { loading } = useLoading();
     const formRef = useRef<HTMLDivElement>(null);
 
-    const handleRangeSelection: SelectRangeEventHandler = (
+    const handleRangeSelection = (
         selectedRange: DateRange | undefined,
     ) => {
         if (

@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { DayPicker } from "react-day-picker";
+import {
+    DateRange,
+    DayPicker,
+    SelectRangeEventHandler,
+} from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { conveyUserSelection, transformEvents } from "../utils";
 import {
@@ -27,6 +31,37 @@ export const Calendar = (props: ICalendarProps) => {
     const [eventDates, setEventDates] = useState<IEventDates>({
         acceptedDates: [],
     });
+
+    const onSelectWrapper: SelectRangeEventHandler = (
+        selectedRange: DateRange | undefined,
+    ) => {
+        const rangeIncludesDisabledDates = (start: Date, end: Date) => {
+            for (const disabledDay of eventDates.acceptedDates) {
+                const disabledDate = new Date(disabledDay).getTime();
+                if (
+                    disabledDate > start.getTime() &&
+                    disabledDate < end.getTime()
+                ) {
+                    console.log("Hit");
+                    return true;
+                }
+            }
+            return false;
+        };
+        if (
+            selectedRange?.from &&
+            selectedRange?.to &&
+            rangeIncludesDisabledDates(selectedRange.from, selectedRange.to)
+        ) {
+            const newRange: DateRange = {
+                from: selectedRange?.to,
+                to: undefined,
+            };
+            handleRangeSelection(newRange);
+        } else {
+            handleRangeSelection(selectedRange);
+        }
+    };
 
     const { isLoggedIn } = useLogin();
 
@@ -74,7 +109,7 @@ export const Calendar = (props: ICalendarProps) => {
                             modifiersStyles={{
                                 selected: { backgroundColor: "#82593e" },
                             }}
-                            onSelect={handleRangeSelection}
+                            onSelect={onSelectWrapper}
                             captionLayout="dropdown-buttons"
                             max={6}
                             numberOfMonths={
