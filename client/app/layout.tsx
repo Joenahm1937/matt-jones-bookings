@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Libre_Franklin } from "next/font/google";
 import GlobalContextProvider from "@/app/Contexts/GlobalContextProvider";
+import NavBar from "@/app/GlobalComponents/NavBar";
 
 const font = Libre_Franklin({ weight: "400", subsets: ["latin"] });
 
@@ -18,7 +19,14 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${font.className}`}>
             <body className="overflow-hidden bg-[#f4eee6]">
-                <GlobalContextProvider>{children}</GlobalContextProvider>
+                <GlobalContextProvider>
+                    {
+                        <>
+                            <NavBar />
+                            {children}
+                        </>
+                    }
+                </GlobalContextProvider>
             </body>
         </html>
     );

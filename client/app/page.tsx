@@ -1,7 +1,7 @@
 "use client";
-import { RefObject, useEffect, useRef } from "react";
 
-import { useLoading } from "@/app/Contexts/LoadingContext";
+import { RefObject, useEffect, useRef } from "react";
+import { usePageContext } from "@/app/Contexts/PageContext";
 import Section1 from "@/app/Home/Components/Section1";
 import Section2 from "@/app/Home/Components/Section2";
 import Section3 from "@/app/Home/Components/Section3";
@@ -9,7 +9,7 @@ import Section4 from "@/app/Home/Components/Section4";
 import classNames from "classnames";
 
 export default function Home() {
-    const { pageVisible, setPageVisible } = useLoading();
+    const { pageVisible, setPageVisible } = usePageContext();
     const sectionRefs = [
         useRef<HTMLDivElement>(null),
         useRef<HTMLDivElement>(null),

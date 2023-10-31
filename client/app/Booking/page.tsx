@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Calendar } from "./Components/Calendar";
 import { Form } from "./Components/Form";
-import { useLoading } from "@/app/Contexts/LoadingContext";
+import { usePageContext } from "@/app/Contexts/PageContext";
 import classNames from "classnames";
 import { DateRange, SelectRangeEventHandler } from "react-day-picker";
 import { insertEvent } from "./utils";
@@ -13,7 +13,7 @@ export default function Booking() {
     const MIN_WIDTH_DESKTOP = "1280px";
     const MIN_WIDTH_LARGE_SCREEN = "1024px";
 
-    const { pageVisible, setPageVisible } = useLoading();
+    const { pageVisible, setPageVisible } = usePageContext();
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [isDesktopView, setIsDesktopView] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
@@ -23,7 +23,6 @@ export default function Booking() {
         router.push("/MyEvents");
     };
 
-    const { loading } = useLoading();
     const formRef = useRef<HTMLDivElement>(null);
 
     const handleRangeSelection = (
@@ -70,7 +69,7 @@ export default function Booking() {
         return () => {
             mediaQuery.removeEventListener("change", handleMediaChange);
         };
-    }, [loading]);
+    }, []);
 
     useEffect(() => {
         if (isFormVisible && !isDesktopView && formRef.current) {

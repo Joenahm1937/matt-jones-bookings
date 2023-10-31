@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { SectionLayout } from "./SectionLayout";
-import { useAnimateOnScroll } from "../AnimateHook";
+import { useAnimateOnScroll } from "../useAnimateOnScroll";
 import { HOME_HEADER, HOME_SUBHEADER } from "@/app/constants";
 import { ISectionProps } from "../interfaces";
 

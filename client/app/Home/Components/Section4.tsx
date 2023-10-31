@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { SectionLayout } from "./SectionLayout";
 import Footer from "./Footer";
-import { useAnimateOnScroll } from "../AnimateHook";
+import { useAnimateOnScroll } from "../useAnimateOnScroll";
 
 export default function Section4() {
     const contentRef = useRef<HTMLDivElement>(null);

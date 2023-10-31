@@ -5,10 +5,10 @@ import classNames from "classnames";
 import { fetchEvents } from "./utils";
 import Link from "next/link";
 import EventCard from "./Components/EventCard";
-import { useLoading } from "../Contexts/LoadingContext";
+import { usePageContext } from "../Contexts/PageContext";
 
 export default function MyEvents() {
-    const { pageVisible, setPageVisible } = useLoading();
+    const { pageVisible, setPageVisible } = usePageContext();
     const [events, setEvents] = useState<GetUserEventsResponse>([]);
     const [error, setError] = useState<string | null>(null);
 
