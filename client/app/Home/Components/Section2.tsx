@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { SectionLayout } from "./SectionLayout";
-import { useAnimateOnScroll } from "../useAnimateOnScroll";
+import { useAnimateOnScroll } from "../../Hooks/useAnimateOnScroll";
 import { ISectionProps } from "../interfaces";
 
 export default function Section2(props: ISectionProps) {

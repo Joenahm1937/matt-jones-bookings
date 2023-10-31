@@ -3,17 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Calendar } from "./Components/Calendar";
 import { Form } from "./Components/Form";
-import { usePageContext } from "@/app/Contexts/PageContext";
 import classNames from "classnames";
-import { DateRange, SelectRangeEventHandler } from "react-day-picker";
+import { DateRange } from "react-day-picker";
 import { insertEvent } from "./utils";
 import { useRouter } from "next/navigation";
+import { usePageVisible } from "@/app/Hooks/usePageVisible";
 
 export default function Booking() {
     const MIN_WIDTH_DESKTOP = "1280px";
     const MIN_WIDTH_LARGE_SCREEN = "1024px";
 
-    const { pageVisible, setPageVisible } = usePageContext();
+    const [pageVisible, setPageVisible] = usePageVisible();
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [isDesktopView, setIsDesktopView] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
@@ -25,9 +25,7 @@ export default function Booking() {
 
     const formRef = useRef<HTMLDivElement>(null);
 
-    const handleRangeSelection = (
-        selectedRange: DateRange | undefined,
-    ) => {
+    const handleRangeSelection = (selectedRange: DateRange | undefined) => {
         if (
             selectedRange?.to &&
             selectedRange?.from &&
@@ -59,7 +57,6 @@ export default function Booking() {
             `(min-width: ${MIN_WIDTH_DESKTOP})`,
         ).matches;
         setIsDesktopView(isDesktop);
-        // setPageVisible(true);
 
         const mediaQuery = window.matchMedia(
             `(min-width: ${MIN_WIDTH_LARGE_SCREEN})`,
