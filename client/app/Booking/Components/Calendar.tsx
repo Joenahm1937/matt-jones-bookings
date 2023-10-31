@@ -13,10 +13,10 @@ import {
     ICalendarProps,
     ICalendarHeaderProps,
 } from "../Interfaces";
-import { SERVER_URL } from "../../Constants";
+import { SERVER_URL } from "../../constants";
 import type { GetAllEventsResponse } from "@backendTypes/index";
-import { useLogin } from "../../GlobalContext";
-import { LoginButton } from "../../Components/LoginButtons";
+import { useLogin } from "@/app/Contexts/LoginContext";
+import { LoginButton } from "../../Home/Components/LoginButtons";
 
 export const Calendar = (props: ICalendarProps) => {
     const {

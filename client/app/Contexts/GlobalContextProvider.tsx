@@ -1,36 +1,18 @@
 "use client";
-import {
-    Dispatch,
-    SetStateAction,
-    createContext,
-    useContext,
-    useEffect,
-    useState,
-} from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { CLIENT_URL, SERVER_URL } from "./Constants";
+import { LoginContext } from "./LoginContext";
+import { StylesContext } from "./StylesContext";
 import { GetLoginStatusResponse } from "@backendTypes/index";
+import { CLIENT_URL, SERVER_URL } from "@/app/constants";
 
-type LoginContextType = {
-    isLoggedIn: boolean;
-    login: () => void;
-    logout: () => void;
-};
-
-type StylesContextType = {
-    navHeight: string;
-    setNavHeight: Dispatch<SetStateAction<string>>;
-};
-
-const LoginContext = createContext<LoginContextType | undefined>(undefined);
-const StylesContext = createContext<StylesContextType | undefined>(undefined);
 const queryClient = new QueryClient();
 
 interface IGlobalProvider {
-    children: any;
+    children: ReactNode;
 }
 
-export const GlobalProvider = ({ children }: IGlobalProvider) => {
+export default function GlobalContextProvider({ children }: IGlobalProvider) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [navHeight, setNavHeight] = useState("0");
 
@@ -44,10 +26,7 @@ export const GlobalProvider = ({ children }: IGlobalProvider) => {
         await fetch(`${SERVER_URL}/auth/logout`, {
             credentials: "include",
         });
-        setTimeout(
-            () => (window.location.href = `${CLIENT_URL}`),
-            1000,
-        );
+        setTimeout(() => (window.location.href = `${CLIENT_URL}`), 1000);
     };
 
     useEffect(() => {
@@ -71,24 +50,4 @@ export const GlobalProvider = ({ children }: IGlobalProvider) => {
             </LoginContext.Provider>
         </QueryClientProvider>
     );
-};
-
-export function useLogin() {
-    const context = useContext(LoginContext);
-    if (!context) {
-        throw new Error(
-            "useLogin must be used within a Login Context Provider",
-        );
-    }
-    return context;
-}
-
-export function useGlobalStyles() {
-    const context = useContext(StylesContext);
-    if (!context) {
-        throw new Error(
-            "useGlobalStyles must be used within a Styles Context Provider",
-        );
-    }
-    return context;
 }

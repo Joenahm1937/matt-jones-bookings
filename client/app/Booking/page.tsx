@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Calendar } from "./Components/Calendar";
 import { Form } from "./Components/Form";
-import { useLoading } from "../template";
+import { useLoading } from "@/app/Contexts/LoadingContext";
 import classNames from "classnames";
 import { DateRange, SelectRangeEventHandler } from "react-day-picker";
 import { insertEvent } from "./utils";
@@ -13,7 +13,7 @@ export default function Booking() {
     const MIN_WIDTH_DESKTOP = "1280px";
     const MIN_WIDTH_LARGE_SCREEN = "1024px";
 
-    const [isPageVisible, setPageVisible] = useState(false);
+    const { pageVisible, setPageVisible } = useLoading();
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [isDesktopView, setIsDesktopView] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
@@ -84,8 +84,8 @@ export default function Booking() {
                 "flex w-full transition-opacity delay-200 duration-500 ease-in",
                 {
                     "flex-col": !isDesktopView,
-                    "opacity-100": isPageVisible,
-                    "opacity-0": !isPageVisible,
+                    "opacity-100": pageVisible,
+                    "opacity-0": !pageVisible,
                 },
             )}
         >

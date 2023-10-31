@@ -5,9 +5,10 @@ import classNames from "classnames";
 import { fetchEvents } from "./utils";
 import Link from "next/link";
 import EventCard from "./Components/EventCard";
+import { useLoading } from "../Contexts/LoadingContext";
 
 export default function MyEvents() {
-    const [isPageVisible, setPageVisible] = useState(false);
+    const { pageVisible, setPageVisible } = useLoading();
     const [events, setEvents] = useState<GetUserEventsResponse>([]);
     const [error, setError] = useState<string | null>(null);
 
@@ -43,8 +44,8 @@ export default function MyEvents() {
             className={classNames(
                 "flex h-screen w-full transition-opacity delay-200 duration-500 ease-in",
                 {
-                    "opacity-100": isPageVisible,
-                    "opacity-0": !isPageVisible,
+                    "opacity-100": pageVisible,
+                    "opacity-0": !pageVisible,
                     "items-start justify-start": events.length > 0,
                     "items-center justify-center": events.length === 0,
                 },

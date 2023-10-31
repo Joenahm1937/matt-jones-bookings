@@ -6,7 +6,7 @@ import type {
     InsertEventRequest,
     ScrubbedEventData,
 } from "@backendTypes/index";
-import { SERVER_URL } from "../Constants";
+import { SERVER_URL } from "../constants";
 
 export const validateEmail = (email: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

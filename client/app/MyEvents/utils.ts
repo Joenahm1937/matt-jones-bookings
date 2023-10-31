@@ -1,5 +1,5 @@
 import { calendar_v3 } from "googleapis";
-import { SERVER_URL } from "../Constants";
+import { SERVER_URL } from "../constants";
 import { format, parseISO } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { ISubmitForm } from "../Booking/Interfaces";

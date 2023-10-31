@@ -3,17 +3,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { WEBSITE_TITLE } from "../Constants";
+import { WEBSITE_TITLE } from "../constants";
 import {
     IDesktopMenuProps,
     IHamburgerIconProps,
     IMenuLinksProps,
     IMobileMenuProps,
     LinkHref,
-} from "../Interfaces";
-import { LoginButton, LogoutButton } from "./LoginButtons";
-import { useGlobalStyles, useLogin } from "../GlobalContext";
-import { useLoading } from "../template";
+} from "./interfaces";
+import { LoginButton, LogoutButton } from "../Home/Components/LoginButtons";
+import { useLogin } from "@/app/Contexts/LoginContext";
+import { useGlobalStyles } from "@/app/Contexts/StylesContext";
+import { useLoading } from "@/app/Contexts/LoadingContext";
 
 export default function NavBar() {
     const headerRef = useRef<HTMLDivElement | null>(null);

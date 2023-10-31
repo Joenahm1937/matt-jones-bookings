@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Libre_Franklin } from "next/font/google";
-import { GlobalProvider } from "./GlobalContext";
+import GlobalContextProvider from "@/app/Contexts/GlobalContextProvider";
 
 const font = Libre_Franklin({ weight: "400", subsets: ["latin"] });
 
@@ -18,7 +18,7 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${font.className}`}>
             <body className="overflow-hidden bg-[#f4eee6]">
-                <GlobalProvider>{children}</GlobalProvider>
+                <GlobalContextProvider>{children}</GlobalContextProvider>
             </body>
         </html>
     );

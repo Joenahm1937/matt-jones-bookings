@@ -1,31 +1,4 @@
-import { MutableRefObject, RefObject } from "react";
-
-export interface IScrollSectionProps {
-    onVisible: () => void;
-    children: React.ReactNode;
-}
-
-export interface ISection1Props {
-    reference: RefObject<HTMLDivElement>;
-    isVisible: boolean;
-    backgroundVisible: boolean;
-    isLoggedIn: boolean;
-}
-
-export interface ISection2Props {
-    reference: RefObject<HTMLDivElement>;
-    isVisible: boolean;
-}
-
-export interface ISection3Props {
-    reference: RefObject<HTMLDivElement>;
-    isVisible: boolean;
-}
-
-export interface ISection4Props {
-    reference: RefObject<HTMLDivElement>;
-    isVisible: boolean;
-}
+import { MutableRefObject } from "react";
 
 export type LinkHref = "/" | "/Booking" | "/MyEvents";
 

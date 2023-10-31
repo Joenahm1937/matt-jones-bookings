@@ -1,17 +1,15 @@
 "use client";
-import { RefObject, useEffect, useRef, useState } from "react";
-import {
-    Section1,
-    Section2,
-    Section3,
-    Section4,
-} from "./Components/HomeSections";
+import { RefObject, useEffect, useRef } from "react";
+
+import { useLoading } from "@/app/Contexts/LoadingContext";
+import Section1 from "@/app/Home/Components/Section1";
+import Section2 from "@/app/Home/Components/Section2";
+import Section3 from "@/app/Home/Components/Section3";
+import Section4 from "@/app/Home/Components/Section4";
 import classNames from "classnames";
 
-// Images should go from opacity-0 to opacity-100 and text fall into place (y)
-
 export default function Home() {
-    const [isPageVisible, setPageVisible] = useState(false);
+    const { pageVisible, setPageVisible } = useLoading();
     const sectionRefs = [
         useRef<HTMLDivElement>(null),
         useRef<HTMLDivElement>(null),
@@ -25,15 +23,15 @@ export default function Home() {
 
     useEffect(() => {
         setTimeout(() => setPageVisible(true), 400);
-    }, []);
+    }, [setPageVisible]);
 
     return (
         <div
             className={classNames(
                 "home-section-container transition-opacity duration-500 ease-linear",
                 {
-                    "opacity-100": isPageVisible,
-                    "opacity-0": !isPageVisible,
+                    "opacity-100": pageVisible,
+                    "opacity-0": !pageVisible,
                 },
             )}
         >

@@ -1,4 +1,4 @@
-import { OWNER_EMAIL } from "@/app/Constants";
+import { OWNER_EMAIL } from "@/app/constants";
 import { Dialog } from "@headlessui/react";
 import { calendar_v3 } from "googleapis";
 import { useState, Fragment, Dispatch, SetStateAction } from "react";

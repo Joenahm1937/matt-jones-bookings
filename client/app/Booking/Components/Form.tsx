@@ -5,8 +5,8 @@ import { IFormProps } from "../Interfaces";
 import { FaArrowLeft, FaTimes } from "react-icons/fa";
 import { InsertEventRequest, Attendee } from "@backendTypes/index";
 import { calendar_v3 } from "googleapis";
-import Spinner from "@/app/Components/Spinner";
-import { OWNER_EMAIL } from "@/app/Constants";
+import Spinner from "@/app/GlobalComponents/Spinner";
+import { OWNER_EMAIL } from "@/app/constants";
 
 export const Form = (props: IFormProps) => {
     const { range, onBack, showForm, mutationCallback, onSuccess } = props;
