@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useLogin } from "@/app/Contexts/LoginContext";
 import { useGlobalStyles } from "@/app/Contexts/StylesContext";
 import DesktopMenu from "./NavDesktopView";
 import MobileMenu from "./NavMobileView";
@@ -11,15 +12,22 @@ import classNames from "classnames";
 
 import { IPAGES, PAGES, WEBSITE_TITLE } from "@/app/constants";
 
+export interface ILinks {
+    href: string;
+    text: string;
+}
+
 export default function NavBar() {
     const pathname = usePathname();
+    const headerRef = useRef<HTMLDivElement | null>(null);
+    const { isLoggedIn } = useLogin();
+    const { setNavHeight } = useGlobalStyles();
+
     const [currentPage, setCurrentPage] = useState<number>(
         PAGES[pathname as IPAGES],
     );
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [screenSize, setScreenSize] = useState(false);
-    const { setNavHeight } = useGlobalStyles();
-    const headerRef = useRef<HTMLDivElement | null>(null);
 
     const onPageTransition = (href: IPAGES) => {
         setMobileMenuOpen(false);
@@ -27,31 +35,36 @@ export default function NavBar() {
     };
 
     useEffect(() => {
-        if (headerRef.current) {
-            setNavHeight(`${headerRef.current.offsetHeight}px`);
-        }
+        const updateNavHeight = () => {
+            if (headerRef.current) {
+                setNavHeight(`${headerRef.current.offsetHeight}px`);
+            }
+        };
 
-        const onScreenChange = () => {
+        updateNavHeight();
+
+        const handleScreenChange = () => {
             setScreenSize((prev) => !prev);
             setMobileMenuOpen(false);
         };
 
         const mediaQuery = window.matchMedia("(min-width: 1280px)");
-        mediaQuery.addEventListener("change", onScreenChange);
+        mediaQuery.addEventListener("change", handleScreenChange);
 
         return () => {
-            mediaQuery.removeEventListener("change", onScreenChange);
+            mediaQuery.removeEventListener("change", handleScreenChange);
         };
     }, [setNavHeight]);
 
+    const links: ILinks[] = [
+        { href: "/", text: "Home" },
+        { href: "/Booking", text: "Booking" },
+        ...(isLoggedIn ? [{ href: "/MyEvents", text: "My Events" }] : []),
+    ];
+
     return (
         <div className="fixed z-50 w-full">
-            <header
-                ref={headerRef}
-                className={`${
-                    pathname === "/" && "text-white"
-                } bg-opacity-90 py-1 shadow-md`}
-            >
+            <header ref={headerRef} className="py-1 shadow-md">
                 <nav className="mx-auto flex w-11/12 items-center">
                     <Link href="/" className="flex flex-grow items-center">
                         <Image
@@ -65,6 +78,7 @@ export default function NavBar() {
                         </div>
                     </Link>
                     <DesktopMenu
+                        links={links}
                         screenSize={screenSize}
                         currentPage={currentPage}
                         onPageTransition={onPageTransition}
@@ -76,6 +90,7 @@ export default function NavBar() {
                 </nav>
             </header>
             <MobileMenu
+                links={links}
                 currentPage={currentPage}
                 onPageTransition={onPageTransition}
                 mobileMenuOpen={mobileMenuOpen}
@@ -89,53 +104,42 @@ export interface IHamburgerIconProps {
     setMobileMenuOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const HamburgerIcon = ({
+const HamburgerIcon: React.FC<IHamburgerIconProps> = ({
     mobileMenuOpen,
     setMobileMenuOpen,
-}: IHamburgerIconProps) => {
+}) => {
     const pathname = usePathname();
-
-    const burgerLineBaseClass =
+    const baseClass =
         "block h-0.5 w-6 rounded-sm transition-all duration-300 ease-out";
-    const burgerLineColorClass = classNames({
+    const colorClass = classNames({
         "bg-white": pathname === "/",
         "bg-stone-500": pathname !== "/",
     });
-    const topBurgerLineClass = classNames(
-        burgerLineBaseClass,
-        burgerLineColorClass,
-        {
-            "translate-y-1 -rotate-45": mobileMenuOpen,
-            "-translate-y-0.5": !mobileMenuOpen,
-        },
-    );
-    const middleBurgerLineClass = classNames(
-        "my-0.5",
-        burgerLineBaseClass,
-        burgerLineColorClass,
-        {
-            "opacity-0": mobileMenuOpen,
-            "opacity-100": !mobileMenuOpen,
-        },
-    );
-    const bottomBurgerLineClass = classNames(
-        burgerLineBaseClass,
-        burgerLineColorClass,
-        {
-            "-translate-y-1 rotate-45": mobileMenuOpen,
-            "translate-y-0.5": !mobileMenuOpen,
-        },
-    );
+
+    const topLineClass = classNames(baseClass, colorClass, {
+        "translate-y-1 -rotate-45": mobileMenuOpen,
+        "-translate-y-0.5": !mobileMenuOpen,
+    });
+
+    const middleLineClass = classNames("my-0.5", baseClass, colorClass, {
+        "opacity-0": mobileMenuOpen,
+        "opacity-100": !mobileMenuOpen,
+    });
+
+    const bottomLineClass = classNames(baseClass, colorClass, {
+        "-translate-y-1 rotate-45": mobileMenuOpen,
+        "translate-y-0.5": !mobileMenuOpen,
+    });
 
     return (
         <div className="xl:hidden">
             <button
-                onClick={() => setMobileMenuOpen((prevState) => !prevState)}
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
                 className="flex cursor-pointer flex-col items-center justify-center"
             >
-                <span className={topBurgerLineClass}></span>
-                <span className={middleBurgerLineClass}></span>
-                <span className={bottomBurgerLineClass}></span>
+                <span className={topLineClass}></span>
+                <span className={middleLineClass}></span>
+                <span className={bottomLineClass}></span>
             </button>
         </div>
     );

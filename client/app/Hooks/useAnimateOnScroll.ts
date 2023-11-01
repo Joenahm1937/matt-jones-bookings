@@ -24,7 +24,7 @@ export const useAnimateOnScroll = (
                         trigger: ref.current,
                         start: "top 60%",
                         end: "bottom 0%",
-                        toggleActions: "play none restart reverse",
+                        toggleActions: "play none none none",
                         ...triggerOptions,
                     },
                     ...options?.to,

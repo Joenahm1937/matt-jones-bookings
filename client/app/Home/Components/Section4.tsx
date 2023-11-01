@@ -6,11 +6,7 @@ import { useAnimateOnScroll } from "../../Hooks/useAnimateOnScroll";
 export default function Section4() {
     const contentRef = useRef<HTMLDivElement>(null);
 
-    useAnimateOnScroll(
-        contentRef,
-        {},
-        { toggleActions: "play none none none" },
-    );
+    useAnimateOnScroll(contentRef, {}, {});
 
     return (
         <SectionLayout containerStyles="flex-col">

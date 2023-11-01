@@ -21,10 +21,10 @@ export default function RootLayout({
             <body className="overflow-hidden bg-[#f4eee6]">
                 <GlobalContextProvider>
                     {
-                        <>
+                        <div>
                             <NavBar />
                             {children}
-                        </>
+                        </div>
                     }
                 </GlobalContextProvider>
             </body>
